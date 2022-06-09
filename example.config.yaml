@@ -1,0 +1,44 @@
+api:
+  name: terraswap-service
+  host: 0.0.0.0
+  port: 8000
+  swagger: false
+  mod: release # test, debug, release
+
+
+services:
+  terraSwapApiEndpoint: http://127.0.0.1:8000
+
+sentry:
+  # "https://putYourSentry@sentry.io/Id"
+  dsn:
+
+log:
+  # panic, fatal, error, warn, info, debug, trace
+  level: info
+  formatJson: true
+  # prod, dev
+  env:
+  chainId: 
+
+terraswap:
+  chainId: pisco-1
+  grpcHost: 
+  cw20AllowlistUrl: https://raw.githubusercontent.com/terra-money/assets/master/cw20/tokens.js
+  ibcAllowlistUrl: https://raw.githubusercontent.com/terra-money/assets/master/ibc/tokens.js
+  filterUnverified: false
+
+rdb:
+  host:
+  port:
+  database:
+  username:
+  password:
+
+cache:
+  host:
+  db:
+  tlsRequired:
+  ca:
+  authRequired:
+  password:
