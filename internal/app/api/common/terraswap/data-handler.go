@@ -240,27 +240,29 @@ func (s *dataHandlerImpl) getTokensFromPairs(pairs []terraswap.Pair) *terraswap.
 	return terraswap.NewTokens(tokenSlice)
 }
 
-func (s *dataHandlerImpl) markVerified(tokens terraswap.Tokens, ibcAllowlist terraswap.TokensMap, cw20Allowlist terraswap.TokensMap) *terraswap.Tokens {
-	tokensMap := terraswap.TokensMap{}
+func (s *dataHandlerImpl) markVerified(tokens terraswap.Tokens, ibcAllowlist, cw20Allowlist terraswap.TokensMap) *terraswap.Tokens {
+
+	updateAllowlist := func(tokens terraswap.Tokens, cachedAllowlist, allowlist terraswap.TokensMap) terraswap.Tokens {
+		tokensMap := terraswap.TokensMap{}
+		_, removed := cachedAllowlist.GetDiffMap(allowlist)
+		for _, token := range tokens.Slice() {
+			if t, ok := allowlist[token.ContractAddr]; ok {
+				token = s.fillToken(token, t)
+			}
+			if removed.Has(token.ContractAddr) {
+				token.Verified = false
+			}
+			tokensMap[token.ContractAddr] = token
+		}
+		return *tokensMap.ToTokens()
+	}
 	cachedIbc := s.cache.GetIbcAllowlistMap()
 	cachedCw20 := s.cache.GetCw20AllowlistMap()
 
-	_, ibcRemoved := cachedIbc.GetDiffMap(ibcAllowlist)
-	_, cw20Removed := cachedCw20.GetDiffMap(cw20Allowlist)
+	tokens = updateAllowlist(tokens, cachedIbc, ibcAllowlist)
+	tokens = updateAllowlist(tokens, cachedCw20, cw20Allowlist)
 
-	for _, token := range tokens.Slice() {
-		if t, ok := ibcAllowlist[token.ContractAddr]; ok {
-			token = t
-		}
-		if t, ok := cw20Allowlist[token.ContractAddr]; ok {
-			token = t
-		}
-		if ibcRemoved.Has(token.ContractAddr) || cw20Removed.Has(token.ContractAddr) {
-			token.Verified = false
-		}
-		tokensMap[token.ContractAddr] = token
-	}
-	return tokensMap.ToTokens()
+	return &tokens
 }
 
 func (s *dataHandlerImpl) cacheAllTokens(tokens terraswap.Tokens) {
@@ -298,4 +300,33 @@ func (s *dataHandlerImpl) GetTokensFrom(from string, hopCount int) []string {
 
 func (s *dataHandlerImpl) GetLogger() logging.Logger {
 	return s.logger
+}
+
+func (s *dataHandlerImpl) fillToken(origin, new terraswap.Token) terraswap.Token {
+	if new.ContractAddr != "" {
+		origin.ContractAddr = new.ContractAddr
+	}
+	if new.Decimals != 0 {
+		origin.Decimals = new.Decimals
+	}
+	if new.Icon != "" {
+		origin.Icon = new.Icon
+	}
+	if new.Name != "" {
+		origin.Name = new.Name
+	}
+	if new.Protocol != "" {
+		origin.Protocol = new.Protocol
+	}
+	if new.Symbol != "" {
+		origin.Symbol = new.Symbol
+	}
+	if new.TotalSupply != "" {
+		origin.TotalSupply = new.TotalSupply
+	}
+	if new.Verified {
+		origin.Verified = true
+	}
+
+	return origin
 }
