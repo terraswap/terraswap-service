@@ -5,12 +5,12 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/delight-labs/terraswap-service/configs"
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/router"
 	"github.com/pkg/errors"
+	"github.com/terraswap/terraswap-service/configs"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/router"
 )
 
 type DataHandler interface {

@@ -1,9 +1,9 @@
 package router
 
 import (
-	"github.com/delight-labs/terraswap-service/internal/pkg/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
 	"github.com/pkg/errors"
+	"github.com/terraswap/terraswap-service/internal/pkg/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type terraswapCacheStore interface {

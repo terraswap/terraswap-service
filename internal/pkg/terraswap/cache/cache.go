@@ -2,8 +2,8 @@ package cache
 
 import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/delight-labs/terraswap-service/internal/pkg/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type TerraswapCache interface {

@@ -1,34 +1,27 @@
 version: "3.7"
 services:
   api:
-    container_name: terraswap-api
+    container_name: terraswap-service
     volumes:
       - ./:/app:ro
     build:
       context: .
-      target: dependencies
+      target: build
     ports:
       - ${SERVER_PORT:-8000}:${SERVER_PORT:-8000}
     command: sh -c "GO111MODULE=off go get github.com/cortesi/modd/cmd/modd && make watch"
-    depends_on: 
-      - db
     networks:
       - local-api
 
   db:
     container_name: terraswap-db
-    image: mysql:5.7
+    image: postgres:13
     volumes:
-      - ./database/data:/var/lib/mysql
+      - ./database/data:/var/lib/postgres
     ports:
-      - ${TERRASWAP_MYSQL_PORT:-3306}:3306
+      - ${TERRASWAP_DB_PORT:-5432}:5432
     environment:
-      MYSQL_TCP_PORT: ${MYSQL_PORT:-3306}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpw}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-terraswap}
-      MYSQL_USER: ${MYSQL_USERNAME:-api}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-apipw}
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      POSTGRES_PASSWORD: ${TERRASWAP_DB_PASSWORD:-password}
     networks:
       - local-api
   

@@ -5,18 +5,18 @@
 
 ### Requirements
 
-- [Go installation](https://golang.org/dl/) (preferably v1.16) and a [correctly configured path](https://golang.org/doc/install#install).
+- [Go installation](https://golang.org/dl/) (preferably v1.18) and a [correctly configured path](https://golang.org/doc/install#install).
 - A local [docker, docker-compose](https://docs.docker.com) 
 - [Golangci-lint](https://github.com/golangci/golangci-lint) to improve code quality
 
 
-### Quickstart
+### Quick start
 
 ```zsh
-git clone https://github.com/delight-labs/
+git clone https://github.com/terraswap/terraswap-service
 cd terraswap-service
 vim config.yaml # to change environment variables.
-make up # starts Redis, TimescaleDB, Kafka, and Zookeeper
+make up 
 make watch # server is automatically restarted when code is edited
 # ...
 make down # shut down all services
@@ -53,6 +53,6 @@ make cover      # Check coverage for all packages
 
 ### Bug Reports & Feature Requests
 
-Please use the [issue tracker](https://github.com/delight-labs/terraswap-service/issues) to report any bugs or ask feature requests.
+Please use the [issue tracker](https://github.com/terraswap/terraswap-service/issues) to report any bugs or ask feature requests.
 
 ## License

@@ -76,4 +76,4 @@ prune-deps:
 # Create the service docker image
 .PHONY: image
 image:
-	docker build --force-rm -t jbam/terraswap-service .
+	docker build --force-rm -t terraswap/terraswap-service .

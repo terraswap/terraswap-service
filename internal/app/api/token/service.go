@@ -3,7 +3,7 @@ package token
 import (
 	"sort"
 
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type service interface {

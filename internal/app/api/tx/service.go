@@ -3,9 +3,9 @@ package tx
 import (
 	"fmt"
 
-	"github.com/delight-labs/terraswap-service/internal/app/api/utils/responser"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
 	"github.com/pkg/errors"
+	"github.com/terraswap/terraswap-service/internal/app/api/utils/responser"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type Service interface {

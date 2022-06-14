@@ -28,6 +28,15 @@ func NewCoin(amount, denom string) Coin {
 	}
 }
 
+type IbcDenomTrace struct {
+	Path      string
+	BaseDenom string
+}
+
+func NewIbcDenomTrace(path, baseDenom string) IbcDenomTrace {
+	return IbcDenomTrace{path, baseDenom}
+}
+
 type ExecuteMsg struct {
 	IncreaseAllowance  *IncreaseAllowanceMsg  `json:"increase_allowance,omitempty"`
 	Swap               *SwapMsg               `json:"swap,omitempty"`

@@ -3,13 +3,13 @@ package terraswap
 import (
 	"testing"
 
-	"github.com/delight-labs/terraswap-service/configs"
-	"github.com/delight-labs/terraswap-service/internal/pkg/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
 	"github.com/stretchr/testify/assert"
+	"github.com/terraswap/terraswap-service/configs"
+	"github.com/terraswap/terraswap-service/internal/pkg/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 
-	tscache "github.com/delight-labs/terraswap-service/internal/pkg/terraswap/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/router"
+	tscache "github.com/terraswap/terraswap-service/internal/pkg/terraswap/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/router"
 )
 
 func TestDataHandler_SwapablePairs(t *testing.T) {

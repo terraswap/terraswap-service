@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	ibctype "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/allowlist"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/databases"
 	"github.com/pkg/errors"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/allowlist"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/databases"
 )
 
 type repository interface {
@@ -130,7 +129,7 @@ func (r *repositoryImpl) getZeroPoolPairs(pairs []terraswap.Pair) (map[string]bo
 
 // getIbcDenom implements repository
 func (r *repositoryImpl) getIbcDenom(ibcHash string) (*terraswap.Token, error) {
-	denomTrace, err := r.store.GetIBCDenom(ibcHash)
+	denomTrace, err := r.store.GetIbcDenom(ibcHash)
 	if err != nil {
 		return nil, errors.Wrap(err, "repository.getIbcDenom")
 	}
@@ -169,7 +168,7 @@ func (m *mapper) denomAddrToToken(denom string) terraswap.Token {
 	}
 }
 
-func (m *mapper) ibcDenomTraceToToken(ibcHash string, trace ibctype.DenomTrace) terraswap.Token {
+func (m *mapper) ibcDenomTraceToToken(ibcHash string, trace terraswap.IbcDenomTrace) terraswap.Token {
 	symbol := terraswap.ToDenomSymbol(trace.BaseDenom)
 	return terraswap.Token{
 		Name:         ibcHash,

@@ -3,9 +3,9 @@ package pair
 import (
 	"net/http"
 
-	"github.com/delight-labs/terraswap-service/internal/app/api/utils/responser"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
 	"github.com/gin-gonic/gin"
+	"github.com/terraswap/terraswap-service/internal/app/api/utils/responser"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type controller struct {

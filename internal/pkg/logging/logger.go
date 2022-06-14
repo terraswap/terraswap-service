@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/delight-labs/terraswap-service/configs"
 	"github.com/sirupsen/logrus"
+	"github.com/terraswap/terraswap-service/configs"
 )
 
 // Logger is a logger that can

@@ -3,10 +3,10 @@ package cache
 import (
 	"testing"
 
-	"github.com/delight-labs/terraswap-service/configs"
-	"github.com/delight-labs/terraswap-service/internal/pkg/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
 	"github.com/stretchr/testify/assert"
+	"github.com/terraswap/terraswap-service/configs"
+	"github.com/terraswap/terraswap-service/internal/pkg/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 func TestTerraswapCache(t *testing.T) {

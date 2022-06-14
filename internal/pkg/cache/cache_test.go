@@ -3,8 +3,8 @@ package cache
 import (
 	"testing"
 
-	"github.com/delight-labs/terraswap-service/configs"
 	"github.com/stretchr/testify/assert"
+	"github.com/terraswap/terraswap-service/configs"
 )
 
 func TestCache(t *testing.T) {

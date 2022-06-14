@@ -3,8 +3,8 @@ package tx
 import (
 	"net/http"
 
-	request_config "github.com/delight-labs/terraswap-service/internal/app/api/common/request-config"
-	"github.com/delight-labs/terraswap-service/internal/app/api/utils/responser"
+	request_config "github.com/terraswap/terraswap-service/internal/app/api/common/request-config"
+	"github.com/terraswap/terraswap-service/internal/app/api/utils/responser"
 
 	"github.com/gin-gonic/gin"
 )

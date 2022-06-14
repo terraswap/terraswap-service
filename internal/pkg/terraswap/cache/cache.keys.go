@@ -3,7 +3,7 @@ package cache
 import (
 	"fmt"
 
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 const (

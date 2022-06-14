@@ -1,9 +1,9 @@
 package terraswap
 
 import (
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
 	"github.com/stretchr/testify/mock"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type dataHandlerMock struct {

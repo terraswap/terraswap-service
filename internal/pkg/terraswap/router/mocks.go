@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
 	"github.com/stretchr/testify/mock"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 )
 
 type routerMock struct {

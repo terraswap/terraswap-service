@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 )
 
 type Repeater interface {
@@ -28,9 +28,9 @@ type repeaterImpl struct {
 
 var _ Repeater = &repeaterImpl{}
 
-func Enroll(logger logging.Logger, runable Runner, name string, exponential, update_interval int) Repeater {
+func Enroll(logger logging.Logger, runnable Runner, name string, exponential, update_interval int) Repeater {
 	r := &repeaterImpl{
-		logger, runable, name, exponential, time.Duration(update_interval),
+		logger, runnable, name, exponential, time.Duration(update_interval),
 	}
 
 	go func() {

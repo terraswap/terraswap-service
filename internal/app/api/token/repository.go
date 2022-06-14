@@ -1,8 +1,8 @@
 package token
 
 import (
-	tsApp "github.com/delight-labs/terraswap-service/internal/app/api/common/terraswap"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
+	tsApp "github.com/terraswap/terraswap-service/internal/app/api/common/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type repository interface {

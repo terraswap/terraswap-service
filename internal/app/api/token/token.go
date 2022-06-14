@@ -1,7 +1,7 @@
 package token
 
 import (
-	"github.com/delight-labs/terraswap-service/internal/app/api/common/terraswap"
+	"github.com/terraswap/terraswap-service/internal/app/api/common/terraswap"
 
 	"github.com/gin-gonic/gin"
 )

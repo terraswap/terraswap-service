@@ -6,9 +6,10 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 
-	"github.com/delight-labs/terraswap-service/configs"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
+	"github.com/terraswap/terraswap-service/configs"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
 type TerraswapRdb interface {
@@ -20,6 +21,10 @@ type rdb struct {
 }
 
 func New(c configs.RdbConfig) *rdb {
+	if c.Host == "" || c.Port == "" || c.Username == "" || c.Password == "" || c.Database == "" {
+		panic(errors.New("must provide RDB options properly"))
+	}
+
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.Username, c.Password, c.Database,

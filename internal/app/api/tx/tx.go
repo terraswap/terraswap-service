@@ -1,9 +1,9 @@
 package tx
 
 import (
-	"github.com/delight-labs/terraswap-service/internal/app/api/common/terraswap"
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
 	"github.com/gin-gonic/gin"
+	"github.com/terraswap/terraswap-service/internal/app/api/common/terraswap"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 )
 
 var logger logging.Logger

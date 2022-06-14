@@ -5,23 +5,24 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/delight-labs/terraswap-service/configs"
 	"github.com/evalphobia/logrus_sentry"
 	"github.com/gin-contrib/cors"
 	"github.com/sirupsen/logrus"
+	"github.com/terraswap/terraswap-service/configs"
 
-	"github.com/delight-labs/terraswap-service/internal/app/api/common/terraswap"
-	"github.com/delight-labs/terraswap-service/internal/app/api/pair"
-	"github.com/delight-labs/terraswap-service/internal/app/api/token"
-	"github.com/delight-labs/terraswap-service/internal/app/api/tx"
-	"github.com/delight-labs/terraswap-service/internal/pkg/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
-	"github.com/delight-labs/terraswap-service/internal/pkg/repeater"
-	terra "github.com/delight-labs/terraswap-service/internal/pkg/terraswap"
-	tsCache "github.com/delight-labs/terraswap-service/internal/pkg/terraswap/cache"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/databases/grpc"
-	"github.com/delight-labs/terraswap-service/internal/pkg/terraswap/router"
 	"github.com/gin-gonic/gin"
+	"github.com/terraswap/terraswap-service/internal/app/api/common/terraswap"
+	"github.com/terraswap/terraswap-service/internal/app/api/pair"
+	"github.com/terraswap/terraswap-service/internal/app/api/token"
+	"github.com/terraswap/terraswap-service/internal/app/api/tx"
+	"github.com/terraswap/terraswap-service/internal/pkg/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
+	"github.com/terraswap/terraswap-service/internal/pkg/repeater"
+	terra "github.com/terraswap/terraswap-service/internal/pkg/terraswap"
+	tsCache "github.com/terraswap/terraswap-service/internal/pkg/terraswap/cache"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/databases/grpc"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/databases/rdb"
+	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/router"
 )
 
 type terraswapApi struct {
@@ -38,10 +39,18 @@ func RunServer(c configs.Config) *terraswapApi {
 	routerRepo := router.NewRepo(terraswapCache)
 	routerService := router.New(routerRepo, c)
 
-	grpcClient := grpc.New(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Log)
-	terraswapRepo := terraswap.NewRepo(c.Terraswap.ChainId, grpcClient)
+	var tsHandler terraswap.DataHandler
 
-	tsHandler := terraswap.NewDataHandler(terraswapRepo, routerService, terraswapCache, c)
+	if terra.IsClassic(c.Terraswap.ChainId) {
+		rdb := rdb.New(c.Rdb)
+		grpcClient := grpc.NewClassic(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Log)
+		terraswapRepo := terraswap.NewClassicRepo(c.Terraswap.ChainId, grpcClient, rdb)
+		tsHandler = terraswap.NewDataHandler(terraswapRepo, routerService, terraswapCache, c)
+	} else {
+		grpcClient := grpc.New(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Log)
+		terraswapRepo := terraswap.NewRepo(c.Terraswap.ChainId, grpcClient)
+		tsHandler = terraswap.NewDataHandler(terraswapRepo, routerService, terraswapCache, c)
+	}
 
 	tsHandler.Run()
 	routerService.Run()

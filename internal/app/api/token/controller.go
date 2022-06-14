@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"strconv"
 
-	request_config "github.com/delight-labs/terraswap-service/internal/app/api/common/request-config"
-	"github.com/delight-labs/terraswap-service/internal/app/api/utils/responser"
 	"github.com/gin-gonic/gin"
+	request_config "github.com/terraswap/terraswap-service/internal/app/api/common/request-config"
+	"github.com/terraswap/terraswap-service/internal/app/api/utils/responser"
 )
 
 type Controller interface {

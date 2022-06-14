@@ -5,9 +5,9 @@ import (
 	"runtime/debug"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/delight-labs/terraswap-service/configs"
-	"github.com/delight-labs/terraswap-service/internal/app/api"
-	"github.com/delight-labs/terraswap-service/internal/pkg/logging"
+	"github.com/terraswap/terraswap-service/configs"
+	"github.com/terraswap/terraswap-service/internal/app/api"
+	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 )
 
 func main() {
