@@ -12,6 +12,12 @@ type dataHandlerMock struct {
 
 var _ DataHandler = &dataHandlerMock{}
 
+// GetActiveDenoms implements DataHandler
+func (d *dataHandlerMock) GetActiveDenoms() []string {
+	args := d.Mock.MethodCalled("GetActiveDenoms")
+	return args.Get(0).([]string)
+}
+
 // GetAllPairs implements DataHandler
 func (d *dataHandlerMock) GetAllPairs() []terraswap.Pair {
 	args := d.Mock.MethodCalled("GetAllPairs")
@@ -86,6 +92,12 @@ var _ repository = &repositoryMock{}
 
 func newRepositoryMock() *repositoryMock {
 	return &repositoryMock{}
+}
+
+// getActiveDenoms implements repository
+func (r *repositoryMock) getActiveDenoms() ([]string, error) {
+	args := r.Mock.MethodCalled("getActiveDenoms")
+	return args.Get(0).([]string), args.Error(1)
 }
 
 // getAllPairs implements repository

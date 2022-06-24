@@ -15,56 +15,11 @@ type Service interface {
 	GetWithdrawTx(ldAddr, amount, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse)
 }
 
-var _ Service = &serviceImpl{
-	repo: nil,
-}
-
-type serviceImpl struct {
+type mixinImpl struct {
 	repo Repository
 }
 
-func newService(r Repository) Service {
-	return &serviceImpl{
-		repo: r,
-	}
-}
-
-func (s *serviceImpl) GetSwapTxs(from, to, amount, sender, max_spread, belief_price string, hop_count int) ([][]*terraswap.UnsignedTx, *responser.ErrorResponse) {
-
-	terraAmount, err := s.convertToTerraAmount(amount, from)
-	if err != nil {
-		msg := fmt.Sprintf("cannot convert amount(%s) for %s", amount, from)
-		res := responser.GetBadRequest(msg, "")
-		return nil, &res
-	}
-
-	utxs := [][]*terraswap.UnsignedTx{}
-	paths := s.repo.GetRoutes(from, to)
-
-	for _, path := range paths {
-		var utx []*terraswap.UnsignedTx
-		pathLen := len(path)
-
-		if pathLen-1 > hop_count {
-			break
-		}
-
-		if pathLen == 1 {
-			utx = s.getSwapTx(from, to, terraAmount, sender, max_spread, belief_price)
-		} else {
-			var err error
-			utx, err = s.getRouteSwapTx(from, terraAmount, sender, max_spread, belief_price, path)
-			if err != nil {
-				continue
-			}
-		}
-		utxs = append(utxs, utx)
-	}
-
-	return utxs, nil
-}
-
-func (s *serviceImpl) getRouteSwapTx(from, amount, sender, max_spread, belief_price string, path []string) ([]*terraswap.UnsignedTx, error) {
+func (s *mixinImpl) getRouteSwapTx(from, amount, sender, max_spread, belief_price string, path []string) ([]*terraswap.UnsignedTx, error) {
 	routerAddr := s.repo.GetRouteContractAddress()
 	if routerAddr == "" {
 		return nil, errors.New("api.tx.service.getRouteSwapTx(): there is no router")
@@ -96,7 +51,7 @@ func (s *serviceImpl) getRouteSwapTx(from, amount, sender, max_spread, belief_pr
 	return append(txs, utx), nil
 }
 
-func (s *serviceImpl) getSwapTx(from, to, amount, sender, max_spread, belief_price string) []*terraswap.UnsignedTx {
+func (s *mixinImpl) getSwapTx(from, to, amount, sender, max_spread, belief_price string) []*terraswap.UnsignedTx {
 	pair := s.repo.GetPairByAssets(from, to)
 	if pair == nil {
 		return nil
@@ -122,7 +77,8 @@ func (s *serviceImpl) getSwapTx(from, to, amount, sender, max_spread, belief_pri
 	txs = append(txs, tx)
 	return txs
 }
-func (s *serviceImpl) GetProvideTx(from, to, fromAmount, toAmount, slippage, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
+
+func (s *mixinImpl) GetProvideTx(from, to, fromAmount, toAmount, slippage, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
 
 	fromAmount, err := s.convertToTerraAmount(fromAmount, from)
 	if err != nil {
@@ -172,7 +128,7 @@ func (s *serviceImpl) GetProvideTx(from, to, fromAmount, toAmount, slippage, sen
 
 }
 
-func (s *serviceImpl) GetWithdrawTx(lpAddr, amount, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
+func (s *mixinImpl) GetWithdrawTx(lpAddr, amount, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
 	pair := s.repo.GetPair(lpAddr)
 	if pair == nil {
 		msg := fmt.Sprintf("cannot find a pair by lpAddr(%s)", lpAddr)
@@ -194,7 +150,7 @@ func (s *serviceImpl) GetWithdrawTx(lpAddr, amount, sender string) ([]*terraswap
 
 }
 
-func (s *serviceImpl) convertToTerraAmount(amount string, tokenAddr string) (string, error) {
+func (s mixinImpl) convertToTerraAmount(amount string, tokenAddr string) (string, error) {
 	decimals := 6
 
 	if tokenAddr[0:1] == "t" {

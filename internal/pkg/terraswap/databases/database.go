@@ -9,4 +9,5 @@ type TerraswapDb interface {
 	GetPairs(lastPair terraswap.Pair) (pairs []terraswap.Pair, err error)
 	GetTokenInfo(tokenAddress string) (*terraswap.Token, error)
 	GetZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error)
+	GetDenoms() ([]string, error)
 }

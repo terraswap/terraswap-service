@@ -26,6 +26,7 @@ type TerraswapGrpcClient interface {
 	GetPairs(lastPair terraswap.Pair) (pairs []terraswap.Pair, err error)
 	GetTokenInfo(tokenAddress string) (*terraswap.Token, error)
 	GetZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error)
+	GetDenoms() ([]string, error)
 }
 
 var _ databases.TerraswapDb = &terraswapGrpcCon{}
@@ -204,4 +205,9 @@ func (t *terraswapGrpcCon) GetTokenInfo(tokenAddress string) (*terraswap.Token, 
 
 	return &token.Result, nil
 
+}
+
+// GetDenoms implements TerraswapGrpcClient
+func (*terraswapGrpcCon) GetDenoms() ([]string, error) {
+	return []string{"uluna"}, nil
 }

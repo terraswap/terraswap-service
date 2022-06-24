@@ -19,18 +19,13 @@ import (
 	"google.golang.org/grpc"
 )
 
-type TerraswapGrpcClassicClient interface {
-	TerraswapGrpcClient
-	GetDenoms() (denoms []string, err error)
-}
-
 type terraswapClassicGrpcCon struct {
 	logger  logging.Logger
 	con     *grpc.ClientConn
 	chainId string
 }
 
-func NewClassic(host, chainId string, log configs.LogConfig) TerraswapGrpcClassicClient {
+func NewClassic(host, chainId string, log configs.LogConfig) TerraswapGrpcClient {
 	logger := logging.New("TerraswapGrpcClient", log)
 	config := types.NewConfig()
 

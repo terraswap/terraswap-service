@@ -12,27 +12,22 @@ type service interface {
 	GetSwapableTokens(from string, hopCount int) []string
 }
 
-var _ service = &swapServiceImpl{}
-
-type swapServiceImpl struct {
+type serviceMixinImpl struct {
 	repo repository
 }
 
+type terra2ServiceImpl struct {
+	serviceMixinImpl
+}
+
+var _ service = &terra2ServiceImpl{}
+
 func newService(r repository) service {
-	return &swapServiceImpl{
-		repo: r,
+	return &terra2ServiceImpl{
+		serviceMixinImpl{r},
 	}
 }
-
-func (s *swapServiceImpl) GetAllTokens() *terraswap.Tokens {
-	return s.repo.GetAll()
-}
-
-func (s *swapServiceImpl) GetToken(addr string) *terraswap.Token {
-	return s.repo.GetToken(addr)
-}
-
-func (s *swapServiceImpl) GetSwapableTokens(from string, hopCount int) []string {
+func (s *terra2ServiceImpl) GetSwapableTokens(from string, hopCount int) []string {
 	tokens := s.repo.GetSwapableTokens(from, hopCount)
 	if terraswap.IsCw20Token(from) {
 		return tokens
@@ -51,4 +46,12 @@ func (s *swapServiceImpl) GetSwapableTokens(from string, hopCount int) []string 
 
 	sort.Strings(keys)
 	return keys
+}
+
+func (s *serviceMixinImpl) GetAllTokens() *terraswap.Tokens {
+	return s.repo.GetAll()
+}
+
+func (s *serviceMixinImpl) GetToken(addr string) *terraswap.Token {
+	return s.repo.GetToken(addr)
 }

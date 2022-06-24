@@ -9,6 +9,7 @@ type repository interface {
 	GetAll() *terraswap.Tokens
 	GetToken(contractAddr string) *terraswap.Token
 	GetSwapableTokens(from string, hopCount int) []string
+	GetActiveDenoms() []string
 }
 
 var _ repository = &repositoryImpl{}
@@ -39,4 +40,9 @@ func (r *repositoryImpl) GetAll() *terraswap.Tokens {
 
 func (r *repositoryImpl) GetToken(contractAddr string) *terraswap.Token {
 	return r.db.GetToken(contractAddr)
+}
+
+// GetActiveDenoms implements repository
+func (r *repositoryImpl) GetActiveDenoms() []string {
+	return r.db.GetActiveDenoms()
 }
