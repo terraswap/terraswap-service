@@ -8,9 +8,12 @@ import (
 
 var logger logging.Logger
 
-func Init(db terraswap.DataHandler, e *gin.Engine, appLogger logging.Logger) {
+func Init(db terraswap.DataHandler, e *gin.Engine, appLogger logging.Logger, isClassic bool) {
 	logger = appLogger
 	r := newRepo(db)
 	s := newService(r)
+	if isClassic {
+		s = newClassicService(r)
+	}
 	newController(e, s)
 }

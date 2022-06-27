@@ -40,8 +40,8 @@ func RunServer(c configs.Config) *terraswapApi {
 	routerService := router.New(routerRepo, c)
 
 	var tsHandler terraswap.DataHandler
-
-	if terra.IsClassic(c.Terraswap.ChainId) {
+	isClassic := terra.IsClassic(c.Terraswap.ChainId)
+	if isClassic {
 		rdb := rdb.New(c.Rdb)
 		grpcClient := grpc.NewClassic(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Log)
 		terraswapRepo := terraswap.NewClassicRepo(c.Terraswap.ChainId, grpcClient, rdb)
@@ -67,7 +67,7 @@ func RunServer(c configs.Config) *terraswapApi {
 	}
 
 	app.setMiddlewares()
-	app.setControllers()
+	app.setControllers(isClassic)
 	if c.Sentry.DSN != "" {
 		app.configureReporter(c.Sentry.DSN)
 	}
@@ -100,10 +100,10 @@ func (app *terraswapApi) setMiddlewares() {
 
 }
 
-func (app *terraswapApi) setControllers() {
-	token.Init(app.db, app.engine)
+func (app *terraswapApi) setControllers(isClassic bool) {
+	token.Init(app.db, app.engine, isClassic)
 	pair.Init(app.db, app.engine)
-	tx.Init(app.db, app.engine, app.logger)
+	tx.Init(app.db, app.engine, app.logger, isClassic)
 }
 
 func (app *terraswapApi) configureReporter(dsn string) error {

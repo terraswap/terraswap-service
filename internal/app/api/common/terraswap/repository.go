@@ -17,6 +17,7 @@ type repository interface {
 	getIbcAllowlist(url string) terraswap.TokensMap
 	getIbcDenom(ibcHash string) (*terraswap.Token, error)
 	getToken(addr string) (*terraswap.Token, error)
+	getActiveDenoms() ([]string, error)
 }
 
 type repositoryImpl struct {
@@ -154,6 +155,15 @@ func (r *repositoryImpl) getToken(addr string) (*terraswap.Token, error) {
 		return nil, errors.Wrap(err, "repository.getToken")
 	}
 	return token, nil
+}
+
+// getActiveDenoms implements repository
+func (r *repositoryImpl) getActiveDenoms() ([]string, error) {
+	denoms, err := r.store.GetDenoms()
+	if err != nil {
+		return nil, errors.Wrap(err, "repository.getActiveDenoms")
+	}
+	return denoms, nil
 }
 
 func (m *mapper) denomAddrToToken(denom string) terraswap.Token {

@@ -22,6 +22,7 @@ type DataHandler interface {
 	GetTokensFrom(addr string, hopCount int) []string
 	GetToken(addr string) *terraswap.Token
 	GetLogger() logging.Logger
+	GetActiveDenoms() []string
 	// Routes handler
 	router.Router
 }
@@ -103,6 +104,16 @@ func (s *dataHandlerImpl) GetToken(addr string) *terraswap.Token {
 // GetTokens implements DataHandler
 func (s *dataHandlerImpl) GetTokens() terraswap.Tokens {
 	return s.cache.GetAllTokens()
+}
+
+// GetActiveDenoms implements DataHandler
+func (s *dataHandlerImpl) GetActiveDenoms() []string {
+	denoms, err := s.repo.getActiveDenoms()
+	if err != nil {
+		s.logger.Info(err)
+		return []string{}
+	}
+	return denoms
 }
 
 func (s *dataHandlerImpl) Run() {
