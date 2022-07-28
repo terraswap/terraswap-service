@@ -117,9 +117,14 @@ func (s *dataHandlerImpl) GetActiveDenoms() []string {
 }
 
 func (s *dataHandlerImpl) Run() {
-	cw20Allowlist := s.repo.getCw20Allowlist(s.config.Cw20AllowlistUrl)
-	ibcAllowlist := s.repo.getIbcAllowlist(s.config.IbcAllowlistUrl)
-
+	cw20Allowlist, err := s.repo.getCw20Allowlist(s.config.Cw20AllowlistUrl)
+	if err != nil {
+		s.logger.Warn(err)
+	}
+	ibcAllowlist, err := s.repo.getIbcAllowlist(s.config.IbcAllowlistUrl)
+	if err != nil {
+		s.logger.Warn(err)
+	}
 	allPairs, err := s.repo.getAllPairs()
 	if err != nil {
 		err := errors.Wrap(err, "terraswap.Service.Run")

@@ -13,8 +13,8 @@ import (
 type repository interface {
 	getAllPairs() ([]terraswap.Pair, error)
 	getZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error)
-	getCw20Allowlist(url string) terraswap.TokensMap
-	getIbcAllowlist(url string) terraswap.TokensMap
+	getCw20Allowlist(url string) (terraswap.TokensMap, error)
+	getIbcAllowlist(url string) (terraswap.TokensMap, error)
 	getIbcDenom(ibcHash string) (*terraswap.Token, error)
 	getToken(addr string) (*terraswap.Token, error)
 	getActiveDenoms() ([]string, error)
@@ -55,10 +55,10 @@ func (r *repositoryImpl) getAllPairs() ([]terraswap.Pair, error) {
 }
 
 // getCw20Allowlist implements repository
-func (r *repositoryImpl) getCw20Allowlist(url string) terraswap.TokensMap {
+func (r *repositoryImpl) getCw20Allowlist(url string) (terraswap.TokensMap, error) {
 	res, err := allowlist.GetAllowlistMapResponse[allowlist.Cw20AllowlistResponse](url)
 	if err != nil {
-		return nil
+		return nil, errors.Wrap(err, "getCw20Allowlist")
 	}
 	var cw20TokenMap map[string]allowlist.Cw20Allowlist
 	if terraswap.IsClassic(r.chainId) {
@@ -83,14 +83,14 @@ func (r *repositoryImpl) getCw20Allowlist(url string) terraswap.TokensMap {
 		}
 	}
 
-	return tokensMap
+	return tokensMap, nil
 }
 
 // getIbcAllowlist implements repository
-func (r *repositoryImpl) getIbcAllowlist(url string) terraswap.TokensMap {
+func (r *repositoryImpl) getIbcAllowlist(url string) (terraswap.TokensMap, error) {
 	res, err := allowlist.GetAllowlistMapResponse[allowlist.IbcAllowlistResponse](url)
 	if err != nil {
-		return nil
+		return nil, errors.Wrap(err, "getIbcAllowlist")
 	}
 
 	var ibcTokenMap map[string]allowlist.IbcTokenAllowlist
@@ -110,7 +110,7 @@ func (r *repositoryImpl) getIbcAllowlist(url string) terraswap.TokensMap {
 		tokensMap[k] = r.mapper.ibcAllowlistToToken(allowlist)
 	}
 
-	return tokensMap
+	return tokensMap, nil
 }
 
 // GetZeroPoolPairs implements repository
