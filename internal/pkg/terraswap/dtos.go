@@ -140,7 +140,7 @@ func (tm TokensMap) Equal(rhs TokensMap) bool {
 		if !ok {
 			return false
 		}
-		if lv.Equal(rv) {
+		if !lv.Equal(rv) {
 			return false
 		}
 	}

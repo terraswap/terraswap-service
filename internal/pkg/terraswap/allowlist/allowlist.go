@@ -26,6 +26,7 @@ func GetAllowlistMapResponse[T AllowlistResponse](url string) (*T, error) {
 	}
 
 	yamlBody := strings.Replace(string(body), jsPrefix, "", 1)
+	yamlBody = strings.Replace(yamlBody, ":{", ": {", 1)
 
 	var listMap T
 	err = yaml.Unmarshal([]byte(yamlBody), &listMap)

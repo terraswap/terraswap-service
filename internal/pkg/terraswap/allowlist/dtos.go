@@ -5,12 +5,12 @@ type AllowlistToken interface {
 	Equal(T interface{}) bool
 }
 type Cw20Allowlist struct {
-	Protocol string `json:"protocol,omitempty" yaml:"protocol"`
-	Symbol   string `json:"symbol,omitempty" yaml:"symbol"`
-	Token    string `json:"token,omitempty" yaml:"token"`
-	Icon     string `json:"icon,omitempty" yaml:"icon"`
-	Name     string `json:"name,omitempty" yaml:"name"`
-	Decimals uint   `json:"decimals,omitempty" yaml:"decimals"`
+	Protocol string `json:"protocol,omitempty" yaml:"protocol,omitempty"`
+	Symbol   string `json:"symbol,omitempty" yaml:"symbol,omitempty"`
+	Token    string `json:"token,omitempty" yaml:"token,omitempty"`
+	Icon     string `json:"icon,omitempty" yaml:"icon,omitempty"`
+	Name     string `json:"name,omitempty" yaml:"name,omitempty"`
+	Decimals uint   `json:"decimals,omitempty" yaml:"decimals,omitempty"`
 }
 
 func (w Cw20Allowlist) Equal(src interface{}) bool {

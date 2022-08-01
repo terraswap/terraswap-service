@@ -107,15 +107,15 @@ func (r *repositoryMock) getAllPairs() ([]terraswap.Pair, error) {
 }
 
 // getCw20Allowlist implements repository
-func (r *repositoryMock) getCw20Allowlist(url string) terraswap.TokensMap {
+func (r *repositoryMock) getCw20Allowlist(url string) (terraswap.TokensMap, error) {
 	args := r.Mock.MethodCalled("getCw20Allowlist", url)
-	return args.Get(0).(terraswap.TokensMap)
+	return args.Get(0).(terraswap.TokensMap), args.Error(1)
 }
 
 // getIbcAllowlist implements repository
-func (r *repositoryMock) getIbcAllowlist(url string) terraswap.TokensMap {
+func (r *repositoryMock) getIbcAllowlist(url string) (terraswap.TokensMap, error) {
 	args := r.Mock.MethodCalled("getIbcAllowlist", url)
-	return args.Get(0).(terraswap.TokensMap)
+	return args.Get(0).(terraswap.TokensMap), args.Error(1)
 }
 
 // getIbcDenom implements repository
