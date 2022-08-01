@@ -25,13 +25,18 @@ type repositoryImpl struct {
 	store   databases.TerraswapDb
 	mapper  mapper
 }
+type mapper interface {
+	denomAddrToToken(denom string) terraswap.Token
+	ibcDenomTraceToToken(ibcHash string, trace terraswap.IbcDenomTrace) terraswap.Token
+	ibcAllowlistToToken(v allowlist.IbcTokenAllowlist) terraswap.Token
+}
 
-type mapper struct{}
+type mapperImpl struct{}
 
 var _ repository = &repositoryImpl{}
 
 func NewRepo(chainId string, store databases.TerraswapDb) repository {
-	return &repositoryImpl{chainId, store, mapper{}}
+	return &repositoryImpl{chainId, store, &mapperImpl{}}
 }
 
 // GetAllPairs implements repository
@@ -166,7 +171,7 @@ func (r *repositoryImpl) getActiveDenoms() ([]string, error) {
 	return denoms, nil
 }
 
-func (m *mapper) denomAddrToToken(denom string) terraswap.Token {
+func (m *mapperImpl) denomAddrToToken(denom string) terraswap.Token {
 	symbol := terraswap.ToDenomSymbol(denom)
 	return terraswap.Token{
 		Name:         denom,
@@ -178,7 +183,7 @@ func (m *mapper) denomAddrToToken(denom string) terraswap.Token {
 	}
 }
 
-func (m *mapper) ibcDenomTraceToToken(ibcHash string, trace terraswap.IbcDenomTrace) terraswap.Token {
+func (m *mapperImpl) ibcDenomTraceToToken(ibcHash string, trace terraswap.IbcDenomTrace) terraswap.Token {
 	symbol := terraswap.ToDenomSymbol(trace.BaseDenom)
 	return terraswap.Token{
 		Name:         ibcHash,
@@ -189,7 +194,7 @@ func (m *mapper) ibcDenomTraceToToken(ibcHash string, trace terraswap.IbcDenomTr
 	}
 }
 
-func (m *mapper) ibcAllowlistToToken(v allowlist.IbcTokenAllowlist) terraswap.Token {
+func (m *mapperImpl) ibcAllowlistToToken(v allowlist.IbcTokenAllowlist) terraswap.Token {
 	decimals := v.Decimals
 	if decimals == 0 {
 		decimals = 6

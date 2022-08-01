@@ -11,8 +11,9 @@ const (
 )
 
 const (
-	DenomIconUrl = "https://raw.githubusercontent.com/terra-money/assets/master/icon/svg"
-	IbcIconUrl   = "https://raw.githubusercontent.com/terra-money/assets/master/icon/svg/ibc"
+	ClassicDenomIconUrl = "https://raw.githubusercontent.com/terra-money/assets/master/icon/svg/Terra"
+	DenomIconUrl        = "https://raw.githubusercontent.com/terra-money/assets/master/icon/svg"
+	IbcIconUrl          = "https://raw.githubusercontent.com/terra-money/assets/master/icon/svg/ibc"
 )
 
 const (

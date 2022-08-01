@@ -1,6 +1,9 @@
 package terraswap
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/pkg/errors"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/databases"
@@ -12,10 +15,14 @@ type classicRepositoryImpl struct {
 	rdb.TerraswapRdb
 }
 
+type classicMapper struct {
+	mapperImpl
+}
+
 var _ repository = &classicRepositoryImpl{}
 
 func NewClassicRepo(chainId string, store databases.TerraswapDb, rdb rdb.TerraswapRdb) repository {
-	repo := &repositoryImpl{chainId, store, mapper{}}
+	repo := &repositoryImpl{chainId, store, &classicMapper{}}
 	return &classicRepositoryImpl{repo, rdb}
 }
 
@@ -26,4 +33,25 @@ func (r *classicRepositoryImpl) getZeroPoolPairs(pairs []terraswap.Pair) (map[st
 		return nil, errors.Wrap(err, "terraswap.ClassicRepository.GetZeroPoolPairs")
 	}
 	return zeroPoolPairsMap, nil
+}
+
+func (m *classicMapper) denomAddrToToken(denom string) terraswap.Token {
+	icon := ""
+	symbol := ""
+	if denom == "uluna" {
+		symbol = "LUNC"
+		icon = fmt.Sprintf(`%s/%s.svg`, terraswap.DenomIconUrl, symbol)
+	} else { // ex) uusd, ukrw ...
+		symbol = strings.ToUpper(denom[1:3]) + "T"
+		icon = fmt.Sprintf(`%s/%s.svg`, terraswap.ClassicDenomIconUrl, strings.ToUpper(symbol))
+	}
+
+	return terraswap.Token{
+		Name:         denom,
+		Symbol:       symbol,
+		Decimals:     6,
+		ContractAddr: denom,
+		Icon:         icon,
+		Verified:     true,
+	}
 }
