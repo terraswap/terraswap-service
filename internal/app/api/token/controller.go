@@ -31,7 +31,12 @@ func (c *controller) GetAllTokens(con *gin.Context) {
 		con.JSON(http.StatusNotFound, responser.NotFound("Not Found", "Not Found"))
 		return
 	}
-	con.JSON(http.StatusOK, tokens.Slice())
+
+	res := TokensResponse{}
+	for _, token := range tokens.Slice() {
+		res = append(res, TokenResponse{token, token.Decimals})
+	}
+	con.JSON(http.StatusOK, res)
 }
 
 func (c *controller) GetToken(con *gin.Context) {
@@ -49,7 +54,8 @@ func (c *controller) GetToken(con *gin.Context) {
 		return
 	}
 
-	con.JSON(http.StatusOK, token)
+	res := TokenResponse{*token, token.Decimals}
+	con.JSON(http.StatusOK, res)
 }
 
 func (c *controller) GetSwapableTokens(con *gin.Context) {
