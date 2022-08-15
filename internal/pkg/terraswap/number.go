@@ -36,7 +36,10 @@ func ToTerraAmount(number string, decimals int) (string, error) {
 }
 
 func checkFormat(data string, decimals int) error {
-	regexStr := fmt.Sprintf(`^[0-9]{1,30}(|\.[0-9]{1,%d})$`, decimals)
+	regexStr := fmt.Sprintf(`^[0-9]{1,30}(|\.?[0-9]{1,%d})$`, decimals)
+	if decimals == 0 {
+		regexStr = `^[0-9]{1,30}$`
+	}
 	re := regexp.MustCompile(regexStr)
 	if !re.Match([]byte(data)) {
 		return errors.New("data format is wrong, requires positive number")

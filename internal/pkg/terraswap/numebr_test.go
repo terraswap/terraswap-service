@@ -61,6 +61,18 @@ func TestNumber_NewPositiveNumberFromString(t *testing.T) {
 			decimals: 10,
 			err:      nil,
 		},
+		{
+			input:    "1",
+			expected: "1",
+			decimals: 0,
+			err:      nil,
+		},
+		{
+			input:    "1.0",
+			expected: "",
+			decimals: 0,
+			err:      errors.New("should throw error due to negative number"),
+		},
 	}
 
 	assert := assert.New(t)
