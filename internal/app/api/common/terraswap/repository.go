@@ -178,7 +178,7 @@ func (m *mapperImpl) denomAddrToToken(denom string) terraswap.Token {
 		Symbol:       symbol,
 		Decimals:     6,
 		ContractAddr: denom,
-		Icon:         fmt.Sprintf(`%s/%s.png`, terraswap.DenomIconUrl, strings.ToUpper(symbol)),
+		Icon:         fmt.Sprintf(`%s/%s.svg`, terraswap.DenomIconUrl, symbol),
 		Verified:     true,
 	}
 }
@@ -190,7 +190,7 @@ func (m *mapperImpl) ibcDenomTraceToToken(ibcHash string, trace terraswap.IbcDen
 		Symbol:       symbol,
 		Decimals:     6,
 		ContractAddr: ibcHash,
-		Icon:         fmt.Sprintf(`%s/%s.png`, terraswap.IbcIconUrl, strings.ToUpper(symbol)),
+		Icon:         fmt.Sprintf(`%s/%s.svg`, terraswap.IbcIconUrl, strings.ToUpper(symbol)),
 	}
 }
 
