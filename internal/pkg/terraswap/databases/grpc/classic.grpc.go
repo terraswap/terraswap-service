@@ -41,10 +41,48 @@ func NewClassic(host, chainId, version string, log configs.LogConfig) TerraswapG
 }
 
 // GetZeroPoolPairs implements TerraswapGrpcClient
-func (*terraswapClassicGrpcCon) GetZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error) {
-	panic("unimplemented")
+func (t *terraswapClassicGrpcCon) GetZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error) {
+	zeroPool := make(map[string]bool)
+
+	for idx, pair := range pairs {
+		poolInfo, err := t.getPoolInfo(pair.ContractAddr)
+		if err != nil {
+			t.logger.Debug(errors.Wrapf(err, "grpc.GetZeroPoolPairs(%s) %d", pair.ContractAddr, idx))
+			continue
+		}
+
+		for _, asset := range poolInfo.Assets {
+			if asset.Amount == "" || asset.Amount == "0" {
+				zeroPool[pair.ContractAddr] = true
+			}
+		}
+
+	}
+	return zeroPool, nil
 }
 
+func (t *terraswapClassicGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo, error) {
+	client := wasm.NewQueryClient(t.con)
+	res, err := client.ContractStore(context.Background(), &wasm.QueryContractStoreRequest{
+		ContractAddress: addr,
+		QueryMsg:        []byte(`{"pool":{}}`),
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "grpc.getPairInfo(%s)", addr)
+	}
+
+	type poolInfoRes struct {
+		Result terraswap.PoolInfo `json:"query_result"`
+	}
+
+	var poolInfo poolInfoRes
+	err = json.Unmarshal(res.QueryResult, &poolInfo.Result)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unmarshal token(%s)", addr)
+	}
+
+	return &poolInfo.Result, nil
+}
 func (c *terraswapClassicGrpcCon) GetDenoms() (denoms []string, err error) {
 	client := oracle.NewQueryClient(c.con)
 

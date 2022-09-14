@@ -42,9 +42,12 @@ func RunServer(c configs.Config) *terraswapApi {
 	var tsHandler terraswap.DataHandler
 	isClassic := terra.IsClassic(c.Terraswap.ChainId)
 	if isClassic {
-		rdb := rdb.New(c.Rdb)
+		var db rdb.TerraswapRdb
+		if c.Rdb.Host != "" {
+			db = rdb.New(c.Rdb)
+		}
 		grpcClient := grpc.NewClassic(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Terraswap.Version, c.Log)
-		terraswapRepo := terraswap.NewClassicRepo(c.Terraswap.ChainId, grpcClient, rdb)
+		terraswapRepo := terraswap.NewClassicRepo(c.Terraswap.ChainId, grpcClient, db)
 		tsHandler = terraswap.NewDataHandler(terraswapRepo, routerService, terraswapCache, c)
 	} else {
 		grpcClient := grpc.New(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Log)

@@ -28,6 +28,9 @@ func NewClassicRepo(chainId string, store databases.TerraswapDb, rdb rdb.Terrasw
 
 // GetZeroPoolPairs implements repository
 func (r *classicRepositoryImpl) getZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error) {
+	if r.TerraswapRdb == nil {
+		return r.repository.getZeroPoolPairs(pairs)
+	}
 	zeroPoolPairsMap, err := r.GetZeroPoolPairs(pairs)
 	if err != nil {
 		return nil, errors.Wrap(err, "terraswap.ClassicRepository.GetZeroPoolPairs")
