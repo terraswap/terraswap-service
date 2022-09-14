@@ -206,7 +206,7 @@ func (s *dataHandlerImpl) filterPairs(allPairs []terraswap.Pair, zeroPoolPairs m
 		token0, ok0 := tokenMap[pair.AssetInfos[0].GetKey()]
 		token1, ok1 := tokenMap[pair.AssetInfos[1].GetKey()]
 
-		if !ok0 || !ok1 {
+		if !ok0 || !ok1 || token0.ContractAddr == token1.ContractAddr {
 			continue
 		}
 
