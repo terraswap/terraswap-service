@@ -4,6 +4,7 @@ import "github.com/spf13/viper"
 
 type TerraswapConfig struct {
 	ChainId          string
+	Version          string
 	GrpcHost         string
 	Cw20AllowlistUrl string
 	IbcAllowlistUrl  string
@@ -13,6 +14,7 @@ type TerraswapConfig struct {
 func terraswapConfig(v *viper.Viper) TerraswapConfig {
 	config := TerraswapConfig{
 		ChainId:          v.GetString("terraswap.chainId"),
+		Version:          v.GetString("terraswap.version"),
 		GrpcHost:         v.GetString("terraswap.grpcHost"),
 		Cw20AllowlistUrl: v.GetString("terraswap.cw20AllowlistUrl"),
 		IbcAllowlistUrl:  v.GetString("terraswap.ibcAllowlistUrl"),
@@ -24,15 +26,15 @@ func terraswapConfig(v *viper.Viper) TerraswapConfig {
 	}
 
 	if config.ChainId == "" {
-		panic("must provice terraswap.chainId")
+		panic("must provide terraswap.chainId")
 	}
 
 	if config.GrpcHost == "" {
-		panic("must provice terraswap.grpcHost")
+		panic("must provide terraswap.grpcHost")
 	}
 
 	if config.IbcAllowlistUrl == "" {
-		panic("must provice terraswap.ibcAllowlistUrl")
+		panic("must provide terraswap.ibcAllowlistUrl")
 	}
 
 	return config

@@ -132,12 +132,20 @@ func ToDenomSymbol(denom string) string {
 	return symbol
 }
 
-func GetFactoryAddress(chainId string) string {
-	return contractAddressMap[chainId].Factory
+func GetFactoryAddress(chainId, version string) string {
+	key := chainId
+	if version != "" {
+		key = fmt.Sprintf("%s-%s", chainId, version)
+	}
+	return contractAddressMap[key].Factory
 }
 
-func GetRouterAddress(chainId string) string {
-	return contractAddressMap[chainId].Router
+func GetRouterAddress(chainId, version string) string {
+	key := chainId
+	if version != "" {
+		key = fmt.Sprintf("%s-%s", chainId, version)
+	}
+	return contractAddressMap[key].Router
 }
 
 func GetPairKeyByAssets(addr1, addr2 string) string {

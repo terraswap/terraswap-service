@@ -43,7 +43,7 @@ func RunServer(c configs.Config) *terraswapApi {
 	isClassic := terra.IsClassic(c.Terraswap.ChainId)
 	if isClassic {
 		rdb := rdb.New(c.Rdb)
-		grpcClient := grpc.NewClassic(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Log)
+		grpcClient := grpc.NewClassic(c.Terraswap.GrpcHost, c.Terraswap.ChainId, c.Terraswap.Version, c.Log)
 		terraswapRepo := terraswap.NewClassicRepo(c.Terraswap.ChainId, grpcClient, rdb)
 		tsHandler = terraswap.NewDataHandler(terraswapRepo, routerService, terraswapCache, c)
 	} else {
@@ -67,7 +67,12 @@ func RunServer(c configs.Config) *terraswapApi {
 	}
 
 	app.setMiddlewares()
-	app.setControllers(isClassic)
+	apiVersion := c.Terraswap.Version
+	app.setControllers(isClassic, apiVersion)
+	if isClassic && apiVersion == "v1" {
+		app.setControllers(isClassic, "")
+	}
+
 	if c.Sentry.DSN != "" {
 		app.configureReporter(c.Sentry.DSN)
 	}
@@ -100,10 +105,11 @@ func (app *terraswapApi) setMiddlewares() {
 
 }
 
-func (app *terraswapApi) setControllers(isClassic bool) {
-	token.Init(app.db, app.engine, isClassic)
-	pair.Init(app.db, app.engine)
-	tx.Init(app.db, app.engine, app.logger, isClassic)
+func (app *terraswapApi) setControllers(isClassic bool, version string) {
+	router := app.engine.Group(version)
+	token.Init(app.db, router, isClassic)
+	pair.Init(app.db, router)
+	tx.Init(app.db, router, app.logger, isClassic)
 }
 
 func (app *terraswapApi) configureReporter(dsn string) error {

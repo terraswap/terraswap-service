@@ -72,7 +72,7 @@ func (c *controller) GetWithdrawTx(con *gin.Context) {
 	con.JSON(http.StatusOK, unsignedtxs)
 }
 
-func newController(e *gin.Engine, s Service) controller {
+func newController(e *gin.RouterGroup, s Service) controller {
 
 	c := controller{
 		service: s,

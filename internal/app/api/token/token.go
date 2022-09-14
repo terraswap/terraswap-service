@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Init(d terraswap.DataHandler, e *gin.Engine, isClassic bool) {
+func Init(d terraswap.DataHandler, e *gin.RouterGroup, isClassic bool) {
 	r := newRepo(d)
 	s := newService(r)
 	if isClassic {

@@ -19,10 +19,10 @@ func TestGetCw20Allowlisted(t *testing.T) {
 
 func TestGetIBCAllowlisted(t *testing.T) {
 	assert := assert.New(t)
-	r := repositoryImpl{chainId: "phoenix-1"}
+	r := repositoryImpl{"phoenix-1", nil, &mapperImpl{}}
 
 	res, _ := r.getIbcAllowlist("https://raw.githubusercontent.com/terra-money/assets/master/ibc/tokens.js")
-	assert.Equal("ibc/0471F1C4E7AFD3F07702BEF6DC365268D64570F7C1FDC98EA6098DD6DE59817B", res["ibc/0471F1C4E7AFD3F07702BEF6DC365268D64570F7C1FDC98EA6098DD6DE59817B"].ContractAddr)
+	assert.NotNil(res["ibc/0471F1C4E7AFD3F07702BEF6DC365268D64570F7C1FDC98EA6098DD6DE59817B"])
 	assert.Equal("OSMO", res["ibc/0471F1C4E7AFD3F07702BEF6DC365268D64570F7C1FDC98EA6098DD6DE59817B"].Symbol)
 	assert.Equal("https://assets.terra.money/icon/svg/ibc/OSMO.svg", res["ibc/0471F1C4E7AFD3F07702BEF6DC365268D64570F7C1FDC98EA6098DD6DE59817B"].Icon)
 	assert.Equal("Osmosis", res["ibc/0471F1C4E7AFD3F07702BEF6DC365268D64570F7C1FDC98EA6098DD6DE59817B"].Name)

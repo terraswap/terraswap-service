@@ -112,7 +112,7 @@ func (t *terraswapGrpcCon) GetPairs(lastPair terraswap.Pair) (pairs []terraswap.
 
 	client := wasmtype.NewQueryClient(t.con)
 	res, err := client.SmartContractState(context.Background(), &wasmtype.QuerySmartContractStateRequest{
-		Address:   terraswap.GetFactoryAddress(t.chainId),
+		Address:   terraswap.GetFactoryAddress(t.chainId, ""),
 		QueryData: qmsg,
 	})
 	if err != nil {
