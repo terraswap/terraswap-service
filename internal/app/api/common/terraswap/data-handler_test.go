@@ -133,8 +133,8 @@ func TestDataHandler_SwapablePairsMustChange(t *testing.T) {
 
 		mockTokens(t.initialPairs)
 		repo.On("getAllPairs").Return(t.initialPairs, nil).Twice()
-		repo.On("getCw20Allowlist", config.Terraswap.Cw20AllowlistUrl).Return(t.cw20Allowlist)
-		repo.On("getIbcAllowlist", config.Terraswap.IbcAllowlistUrl).Return(t.ibcAllowlist)
+		repo.On("getCw20Allowlist", config.Terraswap.Cw20AllowlistUrl).Return(t.cw20Allowlist, nil)
+		repo.On("getIbcAllowlist", config.Terraswap.IbcAllowlistUrl).Return(t.ibcAllowlist, nil)
 		zeroPoolPairs := make(map[string]bool)
 		for i := 0; i < t.zeroPoolPairCount; i++ {
 			zeroPoolPairs[t.initialPairs[i].ContractAddr] = true

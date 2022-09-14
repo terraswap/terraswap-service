@@ -23,6 +23,7 @@ log:
 
 terraswap:
   chainId: pisco-1
+  version: # Optional v1 or v2 for columbus
   grpcHost: 
   cw20AllowlistUrl: https://raw.githubusercontent.com/terra-money/assets/master/cw20/tokens.js
   ibcAllowlistUrl: https://raw.githubusercontent.com/terra-money/assets/master/ibc/tokens.js

@@ -41,7 +41,7 @@ func (s *controller) GetPair(c *gin.Context) {
 	c.JSON(http.StatusOK, pair)
 }
 
-func newController(e *gin.Engine, s service) controller {
+func newController(e *gin.RouterGroup, s service) controller {
 
 	c := controller{
 		service: s,

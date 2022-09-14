@@ -36,7 +36,7 @@ func New(repo Repository, c configs.Config) Router {
 	r := &routerImpl{
 		logger:        logger,
 		Repository:    repo,
-		routerAddress: terraswap.GetRouterAddress(c.Terraswap.ChainId),
+		routerAddress: terraswap.GetRouterAddress(c.Terraswap.ChainId, c.Terraswap.Version),
 		mutex:         &sync.Mutex{},
 	}
 	return r

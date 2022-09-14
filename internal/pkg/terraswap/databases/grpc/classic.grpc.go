@@ -23,9 +23,10 @@ type terraswapClassicGrpcCon struct {
 	logger  logging.Logger
 	con     *grpc.ClientConn
 	chainId string
+	version string
 }
 
-func NewClassic(host, chainId string, log configs.LogConfig) TerraswapGrpcClient {
+func NewClassic(host, chainId, version string, log configs.LogConfig) TerraswapGrpcClient {
 	logger := logging.New("TerraswapGrpcClient", log)
 	config := types.NewConfig()
 
@@ -36,7 +37,7 @@ func NewClassic(host, chainId string, log configs.LogConfig) TerraswapGrpcClient
 	config.Seal()
 	con := connectGRPC(host)
 
-	return &terraswapClassicGrpcCon{logger, con, chainId}
+	return &terraswapClassicGrpcCon{logger, con, chainId, version}
 }
 
 // GetZeroPoolPairs implements TerraswapGrpcClient
@@ -84,7 +85,7 @@ func (c *terraswapClassicGrpcCon) GetPairs(lastPair terraswap.Pair) (pairs []ter
 
 	client := wasm.NewQueryClient(c.con)
 	res, err := client.ContractStore(context.Background(), &wasm.QueryContractStoreRequest{
-		ContractAddress: terraswap.GetFactoryAddress(c.chainId),
+		ContractAddress: terraswap.GetFactoryAddress(c.chainId, c.version),
 		QueryMsg:        json.RawMessage(qmsg),
 	})
 	if err != nil {

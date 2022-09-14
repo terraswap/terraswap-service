@@ -85,7 +85,7 @@ func (c *controller) GetSwapableTokens(con *gin.Context) {
 	con.JSON(http.StatusOK, tokens)
 }
 
-func newController(e *gin.Engine, s service) controller {
+func newController(e *gin.RouterGroup, s service) controller {
 
 	c := controller{
 		service: s,

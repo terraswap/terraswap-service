@@ -5,7 +5,7 @@ import (
 	"github.com/terraswap/terraswap-service/internal/app/api/common/terraswap"
 )
 
-func Init(d terraswap.DataHandler, e *gin.Engine) {
+func Init(d terraswap.DataHandler, e *gin.RouterGroup) {
 	r := newRepo(d)
 	s := newService(r)
 	newController(e, s)
