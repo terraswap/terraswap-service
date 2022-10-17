@@ -27,6 +27,38 @@ var tokensMap TokensMap = map[string]Token{
 	},
 }
 
+func Test_TokenMapEqual(t *testing.T) {
+	next := map[string]Token{
+		"a": {
+			Protocol:     "protocolA",
+			Symbol:       "symbolA",
+			ContractAddr: "tokenA",
+			Icon:         "iconA",
+		},
+		"b": {
+			Protocol:     "protocolB",
+			Symbol:       "symbolB",
+			ContractAddr: "tokenB",
+			Icon:         "iconB",
+		},
+		"c": {
+			Protocol:     "protocolC",
+			Symbol:       "symbolC",
+			ContractAddr: "tokenC",
+			Icon:         "iconC",
+		},
+		"d": {
+			Protocol:     "protocolD",
+			Symbol:       "symbolD",
+			ContractAddr: "tokenD",
+			Icon:         "iconD",
+		},
+	}
+	assert := assert.New(t)
+	assert.False(tokensMap.Equal(next))
+	assert.True(tokensMap.Equal(tokensMap))
+}
+
 func TestGetDiffSame(t *testing.T) {
 	assert := assert.New(t)
 
