@@ -135,6 +135,9 @@ func (tm TokensMap) Empty() bool {
 }
 
 func (tm TokensMap) Equal(rhs TokensMap) bool {
+	if len(tm) != len(rhs) {
+		return false
+	}
 	for k, lv := range tm {
 		rv, ok := rhs[k]
 		if !ok {
