@@ -26,7 +26,7 @@ type terraswapClassicGrpcCon struct {
 	version string
 }
 
-func NewClassic(host, chainId, version string, log configs.LogConfig) TerraswapGrpcClient {
+func NewClassic(host, chainId, version string, insecure bool, log configs.LogConfig) TerraswapGrpcClient {
 	logger := logging.New("TerraswapGrpcClient", log)
 	config := types.NewConfig()
 
@@ -35,7 +35,7 @@ func NewClassic(host, chainId, version string, log configs.LogConfig) TerraswapG
 	config.SetBech32PrefixForValidator(util.Bech32PrefixValAddr, util.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(util.Bech32PrefixConsAddr, util.Bech32PrefixConsPub)
 	config.Seal()
-	con := connectGRPC(host)
+	con := connectGRPC(host, insecure)
 
 	return &terraswapClassicGrpcCon{logger, con, chainId, version}
 }

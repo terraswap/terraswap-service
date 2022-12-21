@@ -37,7 +37,7 @@ type terraswapGrpcCon struct {
 	chainId string
 }
 
-func New(host, chainId string, log configs.LogConfig) TerraswapGrpcClient {
+func New(host, chainId string, insecureCon bool, log configs.LogConfig) TerraswapGrpcClient {
 	logger := logging.New("TerraswapGrpcClient", log)
 	config := types.NewConfig()
 
@@ -46,12 +46,20 @@ func New(host, chainId string, log configs.LogConfig) TerraswapGrpcClient {
 	config.SetBech32PrefixForValidator(types.Bech32PrefixValAddr, types.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(types.Bech32PrefixConsAddr, types.Bech32PrefixConsPub)
 	config.Seal()
-	con := connectGRPC(host)
+	con := connectGRPC(host, insecureCon)
 
 	return &terraswapGrpcCon{logger, con, chainId}
 }
 
-func connectGRPC(host string) *grpc.ClientConn {
+func connectGRPC(host string, insecure bool) *grpc.ClientConn {
+	if insecure {
+		conn, err := grpc.Dial(host, grpc.WithInsecure())
+		if err != nil {
+			panic(err.Error())
+		}
+		return conn
+	}
+
 	var opts []grpc.DialOption
 
 	conn, err := tls.Dial("tcp", host, &tls.Config{
