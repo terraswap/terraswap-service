@@ -3,22 +3,24 @@ package configs
 import "github.com/spf13/viper"
 
 type TerraswapConfig struct {
-	ChainId          string
-	Version          string
-	GrpcHost         string
-	Cw20AllowlistUrl string
-	IbcAllowlistUrl  string
-	FilterUnverified bool
+	ChainId            string
+	Version            string
+	GrpcHost           string
+	InsecureConnection bool
+	Cw20AllowlistUrl   string
+	IbcAllowlistUrl    string
+	FilterUnverified   bool
 }
 
 func terraswapConfig(v *viper.Viper) TerraswapConfig {
 	config := TerraswapConfig{
-		ChainId:          v.GetString("terraswap.chainId"),
-		Version:          v.GetString("terraswap.version"),
-		GrpcHost:         v.GetString("terraswap.grpcHost"),
-		Cw20AllowlistUrl: v.GetString("terraswap.cw20AllowlistUrl"),
-		IbcAllowlistUrl:  v.GetString("terraswap.ibcAllowlistUrl"),
-		FilterUnverified: v.GetBool("terraswap.filterUnverified"),
+		ChainId:            v.GetString("terraswap.chainId"),
+		Version:            v.GetString("terraswap.version"),
+		GrpcHost:           v.GetString("terraswap.grpcHost"),
+		InsecureConnection: v.GetBool("terraswap.insecureConnection"),
+		Cw20AllowlistUrl:   v.GetString("terraswap.cw20AllowlistUrl"),
+		IbcAllowlistUrl:    v.GetString("terraswap.ibcAllowlistUrl"),
+		FilterUnverified:   v.GetBool("terraswap.filterUnverified"),
 	}
 
 	if config.Cw20AllowlistUrl == "" {
