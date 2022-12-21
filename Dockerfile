@@ -42,7 +42,6 @@ WORKDIR /app
 # Import the user and group files to run the app as an unpriviledged user
 COPY --from=build /etc/passwd /etc/passwd
 
-COPY --from=build /app/config.yaml /app/config.yaml
 # Use an unprivileged user
 USER appuser
 COPY --from=build /app/cmd /app/cmd
