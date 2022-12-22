@@ -9,19 +9,23 @@ on:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: terraswap-service
-  ECS_CLUSTER: terraswap-graph
+  ECS_CLUSTER: terraswap-service
 
   PHOENIX_ECS_SERVICE: phoenix-terraswap-service
-  PHOENIX_TASK_DEFINITION: phoenix-terraswap-service 
+  PHOENIX_TASK_DEFINITION: phoenix-terraswap-service
   PHOENIX_CONTAINER_NAME: phoenix-terraswap-service
 
+  PISCO_ECS_SERVICE: pisco-terraswap-service
+  PISCO_TASK_DEFINITION: pisco-terraswap-service
+  PISCO_CONTAINER_NAME: pisco-terraswap-service
+
   COLUMBUS_ECS_SERVICE: columbus-terraswap-service
-  COLUMBUS_TASK_DEFINITION: columbus-terraswap-service 
+  COLUMBUS_TASK_DEFINITION: columbus-terraswap-service
   COLUMBUS_CONTAINER_NAME: columbus-terraswap-service
 
 jobs:
   build:
-    name: build terraswap-graph image
+    name: build terraswap-service image
     runs-on: ubuntu-latest
     environment: production
     outputs:
@@ -52,7 +56,6 @@ jobs:
           PHOENIX_CONFIG: ${{ secrets.PHOENIX_CONFIG }}
           PISCO_CONFIG: ${{ secrets.PISCO_CONFIG }}
           COLUMBUS_CONFIG: ${{ secrets.COLUMBUS_CONFIG }}
-          
         run: |
           IMAGE_TAG=`git rev-parse --short HEAD`
           # docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -70,81 +73,119 @@ jobs:
           done
           docker image push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
+  deploy-phoenix:
+    name: Deploy Phoenix
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-  # deploy-phoenix:
-  #   name: Deploy Phoenix
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   environment: production
-  #   steps:
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.7.0
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.1
 
-  #     - name: Login to Amazon ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v1.5.1
+      - name: Download Task Definition
+        id: download-task-definition
+        working-directory: .
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ env.PHOENIX_TASK_DEFINITION }} | jq '.taskDefinition' > ${{ env.PHOENIX_TASK_DEFINITION }}.json
 
-  #     - name: Download Task Definition
-  #       id: download-task-definition
-  #       working-directory: .
-  #       run: |
-  #         aws ecs describe-task-definition --task-definition ${{ env.PHOENIX_TASK_DEFINITION }} | jq '.taskDefinition' > ${{ env.PHOENIX_TASK_DEFINITION }}.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.1.1
+        with:
+          task-definition: ./${{ env.PHOENIX_TASK_DEFINITION }}.json
+          container-name: ${{ env.PHOENIX_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY}}:${{ needs.build.outputs.phoenix-tag }}
 
-  #     - name: Fill in the new image ID in the Amazon ECS task definition
-  #       id: task-def
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1.1.1
-  #       with:
-  #         task-definition: ./${{ env.PHOENIX_TASK_DEFINITION }}.json
-  #         container-name: ${{ env.PHOENIX_CONTAINER_NAME }}
-  #         image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY}}:${{ needs.build.outputs.image-tag }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.10
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.PHOENIX_ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
 
-  #     - name: Deploy Amazon ECS task definition
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.10
-  #       with:
-  #         task-definition: ${{ steps.task-def.outputs.task-definition }}
-  #         service: ${{ env.PHOENIX_ECS_SERVICE }}
-  #         cluster: ${{ env.ECS_CLUSTER }}
-  #         wait-for-service-stability: true
+  deploy-pisco:
+    name: Deploy Pisco
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-  # deploy-columbus-terraswap-service:
-  #   name: Deploy Columbus
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   environment: production
-  #   steps:
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.7.0
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.1
 
-  #     - name: Login to Amazon ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v1.5.1
+      - name: Download Task Definition
+        id: download-task-definition
+        working-directory: .
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ env.PISCO_TASK_DEFINITION }} | jq '.taskDefinition' > ${{ env.PISCO_TASK_DEFINITION }}.json
 
-  #     - name: Download Task Definition
-  #       id: download-task-definition
-  #       working-directory: .
-  #       run: |
-  #         aws ecs describe-task-definition --task-definition ${{ env.COLUMBUS_TASK_DEFINITION }} | jq '.taskDefinition' > ${{ env.COLUMBUS_TASK_DEFINITION }}.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.1.1
+        with:
+          task-definition: ./${{ env.PISCO_TASK_DEFINITION }}.json
+          container-name: ${{ env.PISCO_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY}}:${{ needs.build.outputs.pisco-tag }}
 
-  #     - name: Fill in the new image ID in the Amazon ECS task definition
-  #       id: task-def
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1.1.1
-  #       with:
-  #         task-definition: ./${{ env.COLUMBUS_TASK_DEFINITION }}.json
-  #         container-name: ${{ env.COLUMBUS_CONTAINER_NAME }}
-  #         image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY}}:${{ needs.build.outputs.image-tag }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.10
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.PISCO_ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
 
-  #     - name: Deploy Amazon ECS task definition
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.10
-  #       with:
-  #         task-definition: ${{ steps.task-def.outputs.task-definition }}
-  #         service: ${{ env.COLUMBUS_ECS_SERVICE }}
-  #         cluster: ${{ env.ECS_CLUSTER }}
-  #         wait-for-service-stability: true
+  deploy-columbus:
+    name: Deploy Columbus
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.1
+
+      - name: Download Task Definition
+        id: download-task-definition
+        working-directory: .
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ env.COLUMBUS_TASK_DEFINITION }} | jq '.taskDefinition' > ${{ env.COLUMBUS_TASK_DEFINITION }}.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.1.1
+        with:
+          task-definition: ./${{ env.COLUMBUS_TASK_DEFINITION }}.json
+          container-name: ${{ env.COLUMBUS_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY}}:${{ needs.build.outputs.columbus-tag }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.10
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.COLUMBUS_ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
