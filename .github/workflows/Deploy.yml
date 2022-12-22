@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - chore/cicd
+      - main
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -57,8 +57,8 @@ jobs:
           PISCO_CONFIG: ${{ secrets.PISCO_CONFIG }}
           COLUMBUS_CONFIG: ${{ secrets.COLUMBUS_CONFIG }}
         run: |
+          make test
           IMAGE_TAG=`git rev-parse --short HEAD`
-          # docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
           echo "FROM $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

@@ -72,7 +72,7 @@ func RunServer(c configs.Config) *terraswapApi {
 	app.setMiddlewares()
 	apiVersion := c.Terraswap.Version
 	app.setControllers(isClassic, apiVersion)
-	if isClassic && apiVersion == "v1" {
+	if isClassic {
 		app.setControllers(isClassic, "")
 	}
 
