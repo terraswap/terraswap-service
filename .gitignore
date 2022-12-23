@@ -28,4 +28,4 @@ main
 
 # env
 .env
-config.*
+*config.*
