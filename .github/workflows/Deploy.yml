@@ -23,6 +23,10 @@ env:
   COLUMBUS_TASK_DEFINITION: columbus-terraswap-service
   COLUMBUS_CONTAINER_NAME: columbus-terraswap-service
 
+  COLUMBUS_V1_ECS_SERVICE: columbus-v1-terraswap-service
+  COLUMBUS_V1_TASK_DEFINITION: columbus-v1-terraswap-service
+  COLUMBUS_V1_CONTAINER_NAME: columbus-v1-terraswap-service
+
 jobs:
   build:
     name: build terraswap-service image
@@ -32,6 +36,7 @@ jobs:
       phoenix-tag: ${{ steps.build-image.outputs.phoenix-tag }}
       pisco-tag: ${{ steps.build-image.outputs.pisco-tag }}
       columbus-tag: ${{ steps.build-image.outputs.columbus-tag }}
+      columbus-v1-tag: ${{ steps.build-image.outputs.columbus-v1-tag }}
 
     steps:
       - name: checkout
@@ -56,6 +61,7 @@ jobs:
           PHOENIX_CONFIG: ${{ secrets.PHOENIX_CONFIG }}
           PISCO_CONFIG: ${{ secrets.PISCO_CONFIG }}
           COLUMBUS_CONFIG: ${{ secrets.COLUMBUS_CONFIG }}
+          COLUMBUS_V1_CONFIG: ${{ secrets.COLUMBUS_V1_CONFIG }}
         run: |
           make test
           IMAGE_TAG=`git rev-parse --short HEAD`
@@ -64,8 +70,8 @@ jobs:
           echo "FROM $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           COPY config.yaml /app/config.yaml" > Dockerfile.final
 
-          configs=("$PHOENIX_CONFIG" "$PISCO_CONFIG" "$COLUMBUS_CONFIG")
-          networks=("phoenix" "pisco" "columbus")
+          configs=("$PHOENIX_CONFIG" "$PISCO_CONFIG" "$COLUMBUS_CONFIG" "$COLUMBUS_V1_CONFIG")
+          networks=("phoenix" "pisco" "columbus" "columbus-v1")
           for i in "${!configs[@]}"; do
             echo "${configs[i]}" > config.yaml
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${networks[i]}-$IMAGE_TAG -f Dockerfile.final .
@@ -187,5 +193,44 @@ jobs:
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.COLUMBUS_ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+  deploy-v1-columbus:
+    name: Deploy Columbus V1
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1.5.1
+
+      - name: Download Task Definition
+        id: download-task-definition
+        working-directory: .
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ env.COLUMBUS_V1_TASK_DEFINITION }} | jq '.taskDefinition' > ${{ env.COLUMBUS_V1_TASK_DEFINITION }}.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.1.1
+        with:
+          task-definition: ./${{ env.COLUMBUS_V1_TASK_DEFINITION }}.json
+          container-name: ${{ env.COLUMBUS_V1_TASK_DEFINITION }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY}}:${{ needs.build.outputs.columbus-v1-tag }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.10
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.COLUMBUS_V1_TASK_DEFINITION }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
