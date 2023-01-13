@@ -101,7 +101,7 @@ func (app *terraswapApi) run() {
 func (app *terraswapApi) setMiddlewares() {
 	app.engine.Use(gin.CustomRecovery(codedErrorHandle))
 
-	allowedOrigins := []string{`\.terraswap\.io$`, `terraswap\.netflify\.app$`, `localhost$`, `127\.0\.0\.1$`}
+	allowedOrigins := []string{`\.terraswap\.io$`, `terraswap\.netlify\.app$`, `localhost$`, `127\.0\.0\.1$`}
 	conf := cors.DefaultConfig()
 	conf.AllowOriginFunc = func(origin string) bool {
 		for _, o := range allowedOrigins {
