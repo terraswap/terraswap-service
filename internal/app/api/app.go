@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/evalphobia/logrus_sentry"
@@ -100,8 +101,17 @@ func (app *terraswapApi) run() {
 func (app *terraswapApi) setMiddlewares() {
 	app.engine.Use(gin.CustomRecovery(codedErrorHandle))
 
+	allowedOrigins := []string{`\.terraswap\.io$`, `terraswap\.netflify\.app$`, `localhost$`, `127\.0\.0\.1$`}
 	conf := cors.DefaultConfig()
-	conf.AllowOrigins = []string{"https://app-classic.terraswap.io", "https://app.terraswap.io", "https://app-dev.terraswap.io", "http://127.0.0.1", "http://localhost"}
+	conf.AllowOriginFunc = func(origin string) bool {
+		for _, o := range allowedOrigins {
+			matched, _ := regexp.MatchString(o, origin)
+			if matched {
+				return true
+			}
+		}
+		return false
+	}
 	conf.AllowMethods = []string{"GET", "OPTIONS"}
 
 	app.engine.Use(cors.New(conf))
