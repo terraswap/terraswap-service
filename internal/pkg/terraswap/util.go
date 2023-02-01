@@ -107,6 +107,9 @@ func GetQueryMsg(last Pair) ([]byte, error) {
 	return byteQueryMsg, nil
 
 }
+func IsValidToken(src string) bool {
+	return IsNativeToken(src) || IsIbcToken(src) || IsCw20Token(src)
+}
 
 func IsNativeToken(src string) bool {
 	return strings.HasPrefix(src, string(NativeTokenPrefix)) && src != "umcp"

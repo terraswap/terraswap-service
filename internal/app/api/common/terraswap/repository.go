@@ -146,6 +146,10 @@ func (r *repositoryImpl) getIbcDenom(ibcHash string) (*terraswap.Token, error) {
 
 // getToken implements repository
 func (r *repositoryImpl) getToken(addr string) (*terraswap.Token, error) {
+	if !terraswap.IsValidToken(addr) {
+		return nil, errors.New(fmt.Sprintf("invalid token address(%s)", addr))
+	}
+
 	if terraswap.IsIbcToken(addr) {
 		return r.getIbcDenom(addr)
 	}
