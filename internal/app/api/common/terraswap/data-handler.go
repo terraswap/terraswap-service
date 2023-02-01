@@ -227,9 +227,11 @@ func (s *dataHandlerImpl) filterPairs(allPairs []terraswap.Pair, zeroPoolPairs m
 func (s *dataHandlerImpl) getTokensFromPairs(pairs []terraswap.Pair) *terraswap.Tokens {
 	addresses := make(map[string]bool)
 	for _, pair := range pairs {
-		addresses[pair.LiquidityToken] = true
-		for _, asset := range pair.AssetInfos {
-			addresses[asset.GetKey()] = true
+		targets := []string{pair.LiquidityToken, pair.AssetInfos[0].GetKey(), pair.AssetInfos[1].GetKey()}
+		for _, t := range targets {
+			if terraswap.IsValidToken(t) {
+				addresses[t] = true
+			}
 		}
 	}
 
