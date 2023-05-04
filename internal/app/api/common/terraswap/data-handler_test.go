@@ -31,7 +31,7 @@ func TestDataHandler_SwapablePairs(t *testing.T) {
 	var route router.Router
 
 	beforeEach := func(t testcase) {
-		repo = newRepositoryMock()
+		repo = &repositoryMock{}
 		c = cache.New(config.Cache)
 		tsCache = tscache.New(c)
 		route = router.NewRouterMock()
@@ -126,13 +126,13 @@ func TestDataHandler_SwapablePairsMustChange(t *testing.T) {
 	}
 
 	beforeEach := func(t *testcase) {
-		repo = newRepositoryMock()
+		repo = &repositoryMock{}
 		c = cache.New(config.Cache)
 		tsCache = tscache.New(c)
 		route = router.NewRouterMock()
 
 		mockTokens(t.initialPairs)
-		repo.On("getAllPairs").Return(t.initialPairs, nil).Twice()
+		repo.On("getAllPairs").Return(t.initialPairs, nil).Once()
 		repo.On("getCw20Allowlist", config.Terraswap.Cw20AllowlistUrl).Return(t.cw20Allowlist, nil)
 		repo.On("getIbcAllowlist", config.Terraswap.IbcAllowlistUrl).Return(t.ibcAllowlist, nil)
 		zeroPoolPairs := make(map[string]bool)

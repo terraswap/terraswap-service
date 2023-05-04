@@ -30,7 +30,7 @@ func (s *classicServiceImpl) GetSwapTxs(from, to, amount, sender, max_spread, be
 
 	utxs := [][]*terraswap.UnsignedTx{}
 	if terraswap.IsNativeToken(from) && terraswap.IsNativeToken(to) {
-		if utx, err := s.getRouteSwapTx(from, terraAmount, sender, max_spread, belief_price, []string{to}); err == nil {
+		if utx, err := s.getRouteSwapTx(from, terraAmount, sender, []string{to}); err == nil {
 			utxs = append(utxs, utx)
 		}
 	}
@@ -48,7 +48,7 @@ func (s *classicServiceImpl) GetSwapTxs(from, to, amount, sender, max_spread, be
 			utx = s.getSwapTx(from, to, terraAmount, sender, max_spread, belief_price)
 		} else {
 			var err error
-			utx, err = s.getRouteSwapTx(from, terraAmount, sender, max_spread, belief_price, path)
+			utx, err = s.getRouteSwapTx(from, terraAmount, sender, path)
 			if err != nil {
 				continue
 			}

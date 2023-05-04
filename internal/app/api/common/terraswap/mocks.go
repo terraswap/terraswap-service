@@ -90,10 +90,6 @@ type repositoryMock struct {
 
 var _ repository = &repositoryMock{}
 
-func newRepositoryMock() *repositoryMock {
-	return &repositoryMock{}
-}
-
 // getActiveDenoms implements repository
 func (r *repositoryMock) getActiveDenoms() ([]string, error) {
 	args := r.Mock.MethodCalled("getActiveDenoms")
