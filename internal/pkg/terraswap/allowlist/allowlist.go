@@ -1,16 +1,11 @@
 package allowlist
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
-)
-
-const (
-	jsPrefix = "module.exports = "
 )
 
 func GetAllowlistMapResponse[T AllowlistResponse](url string) (*T, error) {
@@ -25,13 +20,10 @@ func GetAllowlistMapResponse[T AllowlistResponse](url string) (*T, error) {
 		panic(err)
 	}
 
-	yamlBody := strings.Replace(string(body), jsPrefix, "", 1)
-	yamlBody = strings.Replace(yamlBody, ":{", ": {", 1)
-
 	var listMap T
-	err = yaml.Unmarshal([]byte(yamlBody), &listMap)
+	err = json.Unmarshal(body, &listMap)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot parse response(%v)", yamlBody)
+		return nil, errors.Wrapf(err, "cannot parse response(%v)", body)
 	}
 	return &listMap, nil
 }
