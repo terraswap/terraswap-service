@@ -4,10 +4,7 @@ api:
   port: 8000
   swagger: false
   mod: release # test, debug, release
-
-
-services:
-  terraSwapApiEndpoint: http://127.0.0.1:8000
+  env:
 
 sentry:
   # "https://putYourSentry@sentry.io/Id"
@@ -19,12 +16,11 @@ log:
   formatJson: true
   # prod, dev
   env:
-  chainId: 
 
 terraswap:
   chainId: pisco-1
   version: # Optional v1 or v2 for columbus
-  grpcHost: 
+  grpcHost:
   insecureConnection: true
   cw20AllowlistUrl: https://raw.githubusercontent.com/terra-money/assets/master/cw20/tokens.js
   ibcAllowlistUrl: https://raw.githubusercontent.com/terra-money/assets/master/ibc/tokens.js

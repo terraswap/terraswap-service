@@ -245,7 +245,7 @@ func (s *dataHandlerImpl) getTokensFromPairs(pairs []terraswap.Pair) *terraswap.
 
 		token, err = s.repo.getToken(addr)
 		if err != nil {
-			msg := fmt.Sprintf("getTokensFromPairs: token(%s)", addr)
+			msg := fmt.Sprintf("getTokensFromPairs: token(%s), %s", addr, err.Error())
 			s.logger.Debug(msg)
 			continue
 		}
