@@ -127,13 +127,13 @@ func (s *dataHandlerImpl) Run() {
 	}
 	allPairs, err := s.repo.getAllPairs()
 	if err != nil {
-		err := errors.Wrap(err, "terraswap.Service.Run")
+		err := errors.Wrap(err, "dataHandlerImpl.Run")
 		panic(err)
 	}
 
 	zeroPoolPairs, err := s.repo.getZeroPoolPairs(allPairs)
 	if err != nil {
-		err := errors.Wrap(err, "terraswap.Service.Run")
+		err := errors.Wrap(err, "dataHandlerImpl.Run")
 		panic(err)
 	}
 
@@ -143,11 +143,7 @@ func (s *dataHandlerImpl) Run() {
 		tokens := s.getTokensFromPairs(allPairs)
 		markedTokens := s.markVerified(*tokens, ibcAllowlist, cw20Allowlist)
 		allTokens := markedTokens
-		filteredPairs, err := s.filterPairs(allPairs, zeroPoolPairs, *allTokens)
-		if err != nil {
-			err = errors.Wrap(err, "terraswap.Service.Run")
-			panic(err)
-		}
+		filteredPairs := s.filterPairs(allPairs, zeroPoolPairs, *allTokens)
 
 		s.cache.SetCw20AllowlistMap(cw20Allowlist)
 		s.cache.SetIbcAllowlistMap(ibcAllowlist)
@@ -192,13 +188,10 @@ func (s *dataHandlerImpl) shouldUpdate(cw20WhiteList terraswap.TokensMap, ibcWhi
 	return len(allPairs) != len(cachedAllPairs)
 }
 
-func (s *dataHandlerImpl) filterPairs(allPairs []terraswap.Pair, zeroPoolPairs map[string]bool, tokens terraswap.Tokens) (filteredPairs []terraswap.Pair, err error) {
+func (s *dataHandlerImpl) filterPairs(allPairs []terraswap.Pair, zeroPoolPairs map[string]bool, tokens terraswap.Tokens) (filtereds []terraswap.Pair) {
 
-	filteredPairs = []terraswap.Pair{}
-	pairs, err := s.repo.getAllPairs()
-	if err != nil {
-		return nil, errors.Wrap(err, "terraswap.service.getSwapablePairs")
-	}
+	filtereds = []terraswap.Pair{}
+	pairs := allPairs
 
 	tokenMap := tokens.Map()
 
@@ -218,10 +211,10 @@ func (s *dataHandlerImpl) filterPairs(allPairs []terraswap.Pair, zeroPoolPairs m
 			continue
 		}
 
-		filteredPairs = append(filteredPairs, pair)
+		filtereds = append(filtereds, pair)
 	}
 
-	return filteredPairs, nil
+	return filtereds
 }
 
 func (s *dataHandlerImpl) getTokensFromPairs(pairs []terraswap.Pair) *terraswap.Tokens {

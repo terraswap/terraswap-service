@@ -24,10 +24,6 @@ func getSwapablePairsKey() string {
 	return swapablePairsKey
 }
 
-func getAllDenomsKey() string {
-	return allDenomsKey
-}
-
 func getAllTokensKey() string {
 	return allTokensKey
 }

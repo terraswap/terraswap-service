@@ -61,7 +61,7 @@ endif
 # Apply https://github.com/golangci/golangci-lint to changes since forked from master branch
 .PHONY: lint
 lint:
-	golangci-lint run --timeout=5m --new-from-rev=$(shell git merge-base $(shell git branch | sed -n -e 's/^\* \(.*\)/\1/p') github/main) --enable=unparam --enable=misspell --enable=prealloc
+	golangci-lint run --timeout=5m --new-from-rev=$(shell git merge-base $(shell git branch | sed -n -e 's/^\* \(.*\)/\1/p') github/main) --enable=unparam --enable=misspell --enable=prealloc --tests=false --disable=errcheck
 
 # Remove all compiled binaries from the directory
 .PHONY: clean

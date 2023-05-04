@@ -10,8 +10,6 @@ import (
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
 
-const update_interval = 60
-
 type Router interface {
 	GetTokensFrom(from string, hopCount int) []string
 	GetRoutes(from, to string) [][]string

@@ -19,7 +19,7 @@ type mixinImpl struct {
 	repo Repository
 }
 
-func (s *mixinImpl) getRouteSwapTx(from, amount, sender, max_spread, belief_price string, path []string) ([]*terraswap.UnsignedTx, error) {
+func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string) ([]*terraswap.UnsignedTx, error) {
 	routerAddr := s.repo.GetRouteContractAddress()
 	if routerAddr == "" {
 		return nil, errors.New("api.tx.service.getRouteSwapTx(): there is no router")
