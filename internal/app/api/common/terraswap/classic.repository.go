@@ -36,16 +36,15 @@ func (r *classicRepositoryImpl) getAllPairs() ([]terraswap.Pair, error) {
 	filtered := []terraswap.Pair{}
 
 	for _, pair := range pairs {
-		invalid := false
+		isValid := true
 		for _, asset := range pair.AssetInfos {
 			if !terraswap.IsValidToken(asset.GetKey()) {
-				invalid = true
+				isValid = false
 			}
 		}
-		if invalid {
-			continue
+		if isValid {
+			filtered = append(filtered, pair)
 		}
-		filtered = append(filtered, pair)
 	}
 	return filtered, nil
 }
