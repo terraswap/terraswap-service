@@ -26,6 +26,29 @@ func NewClassicRepo(chainId string, store databases.TerraswapDb, rdb rdb.Terrasw
 	return &classicRepositoryImpl{repo, rdb}
 }
 
+// getAllPairs implements repository
+func (r *classicRepositoryImpl) getAllPairs() ([]terraswap.Pair, error) {
+	pairs, err := r.repository.getAllPairs()
+	if err != nil {
+		return nil, errors.Wrap(err, "terraswap.classicRepositoryImpl.getAllPairs")
+	}
+
+	filtered := []terraswap.Pair{}
+
+	for _, pair := range pairs {
+		isValid := true
+		for _, asset := range pair.AssetInfos {
+			if !terraswap.IsValidToken(asset.GetKey()) {
+				isValid = false
+			}
+		}
+		if isValid {
+			filtered = append(filtered, pair)
+		}
+	}
+	return filtered, nil
+}
+
 // GetZeroPoolPairs implements repository
 func (r *classicRepositoryImpl) getZeroPoolPairs(pairs []terraswap.Pair) (map[string]bool, error) {
 	if r.TerraswapRdb == nil {

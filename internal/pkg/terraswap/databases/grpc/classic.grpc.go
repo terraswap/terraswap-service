@@ -68,7 +68,7 @@ func (t *terraswapClassicGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo,
 		QueryMsg:        []byte(`{"pool":{}}`),
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, "grpc.getPairInfo(%s)", addr)
+		return nil, errors.Wrapf(err, "grpc.getPoolInfo(%s)", addr)
 	}
 
 	type poolInfoRes struct {

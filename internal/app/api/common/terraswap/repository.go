@@ -39,7 +39,7 @@ func NewRepo(chainId string, store databases.TerraswapDb) repository {
 	return &repositoryImpl{chainId, store, &mapperImpl{}}
 }
 
-// GetAllPairs implements repository
+// getAllPairs implements repository
 func (r *repositoryImpl) getAllPairs() ([]terraswap.Pair, error) {
 	allPairs := []terraswap.Pair{}
 	lastPair := terraswap.Pair{}
