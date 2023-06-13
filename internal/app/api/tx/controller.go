@@ -63,7 +63,7 @@ func (c *controller) GetWithdrawTx(con *gin.Context) {
 		return
 	}
 
-	unsignedtxs, resErr := c.service.GetWithdrawTx(dto.LpAddr, dto.Amount, dto.Sender, dto.Deadline)
+	unsignedtxs, resErr := c.service.GetWithdrawTx(dto.LpAddr, dto.Amount, dto.Sender, dto.MinAssets, dto.Deadline)
 	if resErr != nil {
 		con.JSON(resErr.Code, resErr)
 		return

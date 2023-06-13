@@ -20,7 +20,8 @@ type SwapSendMsg struct {
 
 type withdrawLiquidity struct {
 	WithdrawLiquidity struct {
-		Deadline uint64 `json:"deadline,omitempty"`
+		MinAssets []OfferAsset `json:"min_assets,omitempty"`
+		Deadline  uint64       `json:"deadline,omitempty"`
 	} `json:"withdraw_liquidity"`
 }
 
@@ -32,8 +33,9 @@ func GetSwapSendMsg(max_spread, belief_price string, deadline uint64) (SwapSendM
 	return sendMsg, nil
 }
 
-func GetWithdrawSendMsg(deadline uint64) (string, error) {
+func GetWithdrawSendMsg(minAssets []OfferAsset, deadline uint64) (string, error) {
 	msg := withdrawLiquidity{}
+	msg.WithdrawLiquidity.MinAssets = minAssets
 	msg.WithdrawLiquidity.Deadline = deadline
 	data, err := json.Marshal(msg)
 	if err != nil {

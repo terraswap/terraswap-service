@@ -22,10 +22,11 @@ type ProvideTxRequest struct {
 }
 
 type WithdrawTxRequest struct {
-	LpAddr   string `form:"lpAddr" binding:"required"`
-	Amount   string `form:"amount" binding:"required"`
-	Sender   string `form:"sender"`
-	Deadline uint64 `form:"deadline"`
+	LpAddr    string `form:"lpAddr" binding:"required"`
+	Amount    string `form:"amount" binding:"required"`
+	Sender    string `form:"sender"`
+	MinAssets string `form:"minAssets"`
+	Deadline  uint64 `form:"deadline"`
 }
 
 type SwapTxResponse struct {

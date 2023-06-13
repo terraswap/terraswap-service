@@ -13,7 +13,7 @@ type Repository interface {
 	GetIncreaseAllowance(amount, pairAddress string) *terraswap.ExecuteMsg
 	GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAddress, amount, max_spread, belief_price string, deadline uint64) *terraswap.ExecuteMsg
 	GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage string, p terraswap.Pair, deadline uint64) *terraswap.ExecuteMsg
-	GetWithdrawExecuteMsg(p terraswap.Pair, amount string, deadline uint64) *terraswap.ExecuteMsg
+	GetWithdrawExecuteMsg(p terraswap.Pair, amount string, minAssets []terraswap.OfferAsset, deadline uint64) *terraswap.ExecuteMsg
 	GetSwapRouteExecuteMsg(from string, routes []string) (*terraswap.ExecuteMsg, error)
 	GetTokenDecimals(tokenId string) int
 	GetSwapableTokensFrom(from string, hopCount int) []string
@@ -123,9 +123,9 @@ func (r *repositoryImpl) GetProvideLiquidityExecuteMsg(from, fromAmount, toAmoun
 	}
 }
 
-func (r *repositoryImpl) GetWithdrawExecuteMsg(p terraswap.Pair, amount string, deadline uint64) *terraswap.ExecuteMsg {
+func (r *repositoryImpl) GetWithdrawExecuteMsg(p terraswap.Pair, amount string, minAssets []terraswap.OfferAsset, deadline uint64) *terraswap.ExecuteMsg {
 
-	msg, err := terraswap.GetWithdrawSendMsg(deadline)
+	msg, err := terraswap.GetWithdrawSendMsg(minAssets, deadline)
 	if err != nil {
 		panic(err)
 	}
