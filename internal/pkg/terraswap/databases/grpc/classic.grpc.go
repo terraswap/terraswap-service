@@ -10,7 +10,7 @@ import (
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/terraswap/terraswap-service/configs"
 	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
