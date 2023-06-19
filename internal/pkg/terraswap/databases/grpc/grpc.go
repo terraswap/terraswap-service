@@ -12,13 +12,14 @@ import (
 
 	wasmtype "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/types"
-	ibctype "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibctype "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/terraswap/terraswap-service/configs"
 	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/databases"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type TerraswapGrpcClient interface {
@@ -51,9 +52,10 @@ func New(host, chainId string, insecureCon bool, log configs.LogConfig) Terraswa
 	return &terraswapGrpcCon{logger, con, chainId}
 }
 
-func connectGRPC(host string, insecure bool) *grpc.ClientConn {
-	if insecure {
-		conn, err := grpc.Dial(host, grpc.WithInsecure())
+func connectGRPC(host string, isInsecure bool) *grpc.ClientConn {
+	if isInsecure {
+		cred := insecure.NewCredentials()
+		conn, err := grpc.Dial(host, grpc.WithTransportCredentials(cred))
 		if err != nil {
 			panic(err.Error())
 		}

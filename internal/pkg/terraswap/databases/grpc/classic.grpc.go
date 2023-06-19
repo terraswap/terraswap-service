@@ -8,13 +8,13 @@ import (
 
 	"github.com/pkg/errors"
 
+	wasm "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/types"
+	ibc "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/terraswap/terraswap-service/configs"
 	"github.com/terraswap/terraswap-service/internal/pkg/logging"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
-	"github.com/terraswap/terraswap-service/pkg/classic/grpc/ibc"
 	"github.com/terraswap/terraswap-service/pkg/classic/grpc/oracle"
-	"github.com/terraswap/terraswap-service/pkg/classic/grpc/wasm"
 	"github.com/terraswap/terraswap-service/pkg/classic/util"
 	"google.golang.org/grpc"
 )
@@ -63,9 +63,9 @@ func (t *terraswapClassicGrpcCon) GetZeroPoolPairs(pairs []terraswap.Pair) (map[
 
 func (t *terraswapClassicGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo, error) {
 	client := wasm.NewQueryClient(t.con)
-	res, err := client.ContractStore(context.Background(), &wasm.QueryContractStoreRequest{
-		ContractAddress: addr,
-		QueryMsg:        []byte(`{"pool":{}}`),
+	res, err := client.SmartContractState(context.Background(), &wasm.QuerySmartContractStateRequest{
+		Address:   addr,
+		QueryData: []byte(`{"pool":{}}`),
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "grpc.getPoolInfo(%s)", addr)
@@ -76,7 +76,7 @@ func (t *terraswapClassicGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo,
 	}
 
 	var poolInfo poolInfoRes
-	err = json.Unmarshal(res.QueryResult, &poolInfo.Result)
+	err = json.Unmarshal(res.Data, &poolInfo.Result)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unmarshal token(%s)", addr)
 	}
@@ -122,9 +122,9 @@ func (c *terraswapClassicGrpcCon) GetPairs(lastPair terraswap.Pair) (pairs []ter
 	}
 
 	client := wasm.NewQueryClient(c.con)
-	res, err := client.ContractStore(context.Background(), &wasm.QueryContractStoreRequest{
-		ContractAddress: terraswap.GetFactoryAddress(c.chainId, c.version),
-		QueryMsg:        json.RawMessage(qmsg),
+	res, err := client.SmartContractState(context.Background(), &wasm.QuerySmartContractStateRequest{
+		Address:   terraswap.GetFactoryAddress(c.chainId, c.version),
+		QueryData: qmsg,
 	})
 	if err != nil {
 		println(err.Error())
@@ -132,7 +132,7 @@ func (c *terraswapClassicGrpcCon) GetPairs(lastPair terraswap.Pair) (pairs []ter
 	}
 
 	var pres terraswap.Pairs
-	err = json.Unmarshal(res.QueryResult, &pres)
+	err = json.Unmarshal(res.Data, &pres)
 	if err != nil {
 		return nil, err
 	}
@@ -143,9 +143,9 @@ func (c *terraswapClassicGrpcCon) GetPairs(lastPair terraswap.Pair) (pairs []ter
 func (c *terraswapClassicGrpcCon) GetTokenInfo(tokenAddress string) (*terraswap.Token, error) {
 
 	client := wasm.NewQueryClient(c.con)
-	res, err := client.ContractStore(context.Background(), &wasm.QueryContractStoreRequest{
-		ContractAddress: tokenAddress,
-		QueryMsg:        []byte(`{"token_info":{}}`),
+	res, err := client.SmartContractState(context.Background(), &wasm.QuerySmartContractStateRequest{
+		Address:   tokenAddress,
+		QueryData: []byte(`{"token_info":{}}`),
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "getTokenInfoGRPC: query fail for token(%s)", tokenAddress)
@@ -157,7 +157,7 @@ func (c *terraswapClassicGrpcCon) GetTokenInfo(tokenAddress string) (*terraswap.
 	}
 
 	var token tokenResponse
-	err = json.Unmarshal(res.QueryResult, &token.Result)
+	err = json.Unmarshal(res.Data, &token.Result)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unmarshal token(%s)", tokenAddress)
 	}
