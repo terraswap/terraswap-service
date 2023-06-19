@@ -7,7 +7,7 @@
 #   docker run --rm -it --env-file=path/to/.env --name terraswap-service -p 80:8080 REPO/terraswap-service
 
 ### BUILD
-FROM golang:1.18-alpine AS build
+FROM golang:1.19-alpine AS build
 WORKDIR /app
 
 # Create appuser.

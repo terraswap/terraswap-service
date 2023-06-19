@@ -19,6 +19,7 @@ import (
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap/databases"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type TerraswapGrpcClient interface {
@@ -51,9 +52,10 @@ func New(host, chainId string, insecureCon bool, log configs.LogConfig) Terraswa
 	return &terraswapGrpcCon{logger, con, chainId}
 }
 
-func connectGRPC(host string, insecure bool) *grpc.ClientConn {
-	if insecure {
-		conn, err := grpc.Dial(host, grpc.WithInsecure())
+func connectGRPC(host string, isInsecure bool) *grpc.ClientConn {
+	if isInsecure {
+		cred := insecure.NewCredentials()
+		conn, err := grpc.Dial(host, grpc.WithTransportCredentials(cred))
 		if err != nil {
 			panic(err.Error())
 		}
