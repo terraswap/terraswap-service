@@ -43,7 +43,7 @@ func (s *phoenixServiceImpl) GetSwapTxs(from, to, amount, sender, max_spread, be
 			utx = s.getSwapTx(from, to, terraAmount, sender, max_spread, belief_price, deadline)
 		} else {
 			var err error
-			utx, err = s.getRouteSwapTx(from, terraAmount, sender, path)
+			utx, err = s.getRouteSwapTx(from, terraAmount, sender, path, deadline)
 			if err != nil {
 				continue
 			}

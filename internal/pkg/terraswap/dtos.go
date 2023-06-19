@@ -58,6 +58,7 @@ type OfferAsset struct {
 type RouteSwapOperationMsg struct {
 	Operations     []RouteSwapOperation `json:"operations"`
 	MinimumReceive string               `json:"minimum_receive"`
+	Deadline       uint64               `json:"deadline"`
 }
 
 type RouteSwapOperation struct {

@@ -14,7 +14,7 @@ type Repository interface {
 	GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAddress, amount, max_spread, belief_price string, deadline uint64) *terraswap.ExecuteMsg
 	GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage string, p terraswap.Pair, deadline uint64) *terraswap.ExecuteMsg
 	GetWithdrawExecuteMsg(p terraswap.Pair, amount string, minAssets []terraswap.OfferAsset, deadline uint64) *terraswap.ExecuteMsg
-	GetSwapRouteExecuteMsg(from string, routes []string) (*terraswap.ExecuteMsg, error)
+	GetSwapRouteExecuteMsg(from string, routes []string, deadline uint64) (*terraswap.ExecuteMsg, error)
 	GetTokenDecimals(tokenId string) int
 	GetSwapableTokensFrom(from string, hopCount int) []string
 	GetRouteContractAddress() string
@@ -139,7 +139,7 @@ func (r *repositoryImpl) GetWithdrawExecuteMsg(p terraswap.Pair, amount string, 
 	}
 }
 
-func (r *repositoryImpl) GetSwapRouteExecuteMsg(from string, routes []string) (*terraswap.ExecuteMsg, error) {
+func (r *repositoryImpl) GetSwapRouteExecuteMsg(from string, routes []string, deadline uint64) (*terraswap.ExecuteMsg, error) {
 
 	ops := []terraswap.RouteSwapOperation{}
 	for _, to := range routes {
@@ -166,6 +166,7 @@ func (r *repositoryImpl) GetSwapRouteExecuteMsg(from string, routes []string) (*
 		RouteSwapOperation: &terraswap.RouteSwapOperationMsg{
 			Operations:     ops,
 			MinimumReceive: "",
+			Deadline:       deadline,
 		},
 	}, nil
 }
