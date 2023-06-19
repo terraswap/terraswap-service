@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/pkg/errors"
 	"github.com/terraswap/terraswap-service/internal/pkg/cache"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
 )
