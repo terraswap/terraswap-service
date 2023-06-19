@@ -14,39 +14,35 @@ type SwapSendMsg struct {
 	Swap struct {
 		MaxSpread   string `json:"max_spread,omitempty"`
 		BeliefPrice string `json:"belief_price,omitempty"`
+		Deadline    uint64 `json:"deadline,omitempty"`
 	} `json:"swap"`
 }
 
 type withdrawLiquidity struct {
 	WithdrawLiquidity struct {
-		msg struct{}
+		MinAssets []OfferAsset `json:"min_assets,omitempty"`
+		Deadline  uint64       `json:"deadline,omitempty"`
 	} `json:"withdraw_liquidity"`
 }
 
-var withdrawLiquidityMsgString string
-
-func GetSwapSendMsg(max_spread, belief_price string) (SwapSendMsg, error) {
-
+func GetSwapSendMsg(max_spread, belief_price string, deadline uint64) (SwapSendMsg, error) {
 	sendMsg := SwapSendMsg{}
 	sendMsg.Swap.MaxSpread = max_spread
 	sendMsg.Swap.BeliefPrice = belief_price
+	sendMsg.Swap.Deadline = deadline
 	return sendMsg, nil
 }
 
-func GetWithdrawSendMsg() (string, error) {
-
-	if withdrawLiquidityMsgString != "" {
-		return withdrawLiquidityMsgString, nil
-	}
-
-	data, err := json.Marshal(&withdrawLiquidity{})
+func GetWithdrawSendMsg(minAssets []OfferAsset, deadline uint64) (string, error) {
+	msg := withdrawLiquidity{}
+	msg.WithdrawLiquidity.MinAssets = minAssets
+	msg.WithdrawLiquidity.Deadline = deadline
+	data, err := json.Marshal(msg)
 	if err != nil {
 		panic(errors.Wrap(err, "cannot generate swap send message"))
 	}
 
-	withdrawLiquidityMsgString = base64.StdEncoding.EncodeToString(data)
-
-	return withdrawLiquidityMsgString, nil
+	return base64.StdEncoding.EncodeToString(data), nil
 }
 
 func AddressToAssetInfo(addr string) (*AssetInfo, error) {

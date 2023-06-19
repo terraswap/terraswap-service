@@ -78,11 +78,13 @@ type SwapMsg struct {
 	OfferAsset  OfferAsset `json:"offer_asset"`
 	BeliefPrice string     `json:"belief_price"`
 	MaxSpread   string     `json:"max_spread"`
+	Deadline    uint64     `json:"deadline"`
 }
 
 type ProvideMsg struct {
 	Assets            []OfferAsset `json:"assets"`
 	SlippageTolerance string       `json:"slippage_tolerance"`
+	Deadline          uint64       `json:"deadline"`
 }
 
 type SendMsg struct {

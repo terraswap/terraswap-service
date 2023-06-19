@@ -7,6 +7,7 @@ type SwapTxRequest struct {
 	Sender      string `form:"sender"`
 	MaxSpread   string `form:"max_spread"`
 	BeliefPrice string `form:"belief_price"`
+	Deadline    uint64 `form:"deadline"`
 	HopCount    int    `form:"hop_count, default=2"`
 }
 
@@ -17,12 +18,15 @@ type ProvideTxRequest struct {
 	ToAmount   string `form:"toAmount" binding:"required"`
 	Slippage   string `form:"slippage"`
 	Sender     string `form:"sender"`
+	Deadline   uint64 `form:"deadline"`
 }
 
 type WithdrawTxRequest struct {
-	LpAddr string `form:"lpAddr" binding:"required"`
-	Amount string `form:"amount" binding:"required"`
-	Sender string `form:"sender"`
+	LpAddr    string `form:"lpAddr" binding:"required"`
+	Amount    string `form:"amount" binding:"required"`
+	Sender    string `form:"sender"`
+	MinAssets string `form:"minAssets"`
+	Deadline  uint64 `form:"deadline"`
 }
 
 type SwapTxResponse struct {

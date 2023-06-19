@@ -2,17 +2,17 @@ package tx
 
 import (
 	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/terraswap/terraswap-service/internal/app/api/utils/responser"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
+	"regexp"
 )
 
 type Service interface {
-	getSwapTx(from, to, amount, sender, max_spread, belief_price string) []*terraswap.UnsignedTx
-	GetSwapTxs(from, to, amount, sender, max_spread, belief_price string, hopCount int) ([][]*terraswap.UnsignedTx, *responser.ErrorResponse)
-	GetProvideTx(from, to, fromAmount, toAmount, slippage, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse)
-	GetWithdrawTx(ldAddr, amount, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse)
+	getSwapTx(from, to, amount, sender, max_spread, belief_price string, deadline uint64) []*terraswap.UnsignedTx
+	GetSwapTxs(from, to, amount, sender, max_spread, belief_price string, deadline uint64, hopCount int) ([][]*terraswap.UnsignedTx, *responser.ErrorResponse)
+	GetProvideTx(from, to, fromAmount, toAmount, slippage, sender string, deadline uint64) ([]*terraswap.UnsignedTx, *responser.ErrorResponse)
+	GetWithdrawTx(ldAddr, amount, sender string, minAssets string, deadline uint64) ([]*terraswap.UnsignedTx, *responser.ErrorResponse)
 }
 
 type mixinImpl struct {
@@ -51,7 +51,7 @@ func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string) (
 	return append(txs, utx), nil
 }
 
-func (s *mixinImpl) getSwapTx(from, to, amount, sender, max_spread, belief_price string) []*terraswap.UnsignedTx {
+func (s *mixinImpl) getSwapTx(from, to, amount, sender, max_spread, belief_price string, deadline uint64) []*terraswap.UnsignedTx {
 	pair := s.repo.GetPairByAssets(from, to)
 	if pair == nil {
 		return nil
@@ -68,7 +68,7 @@ func (s *mixinImpl) getSwapTx(from, to, amount, sender, max_spread, belief_price
 
 	txs := make([]*terraswap.UnsignedTx, 0)
 	tx := terraswap.BaseUnsignedTx(addr, sender)
-	tx.Value.ExecuteMsg = *(s.repo.GetSwapExecuteMsg(fromAsset, pair.ContractAddr, amount, max_spread, belief_price))
+	tx.Value.ExecuteMsg = *(s.repo.GetSwapExecuteMsg(fromAsset, pair.ContractAddr, amount, max_spread, belief_price, deadline))
 
 	if fromAsset.GetTokenType() == terraswap.NativeTokenType {
 		tx.Value.Coins = append(tx.Value.Coins, terraswap.NewCoin(amount, fromAsset.GetKey()))
@@ -78,8 +78,7 @@ func (s *mixinImpl) getSwapTx(from, to, amount, sender, max_spread, belief_price
 	return txs
 }
 
-func (s *mixinImpl) GetProvideTx(from, to, fromAmount, toAmount, slippage, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
-
+func (s *mixinImpl) GetProvideTx(from, to, fromAmount, toAmount, slippage, sender string, deadline uint64) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
 	fromAmount, err := s.convertToTerraAmount(fromAmount, from)
 	if err != nil {
 		msg := fmt.Sprintf("cannot convert amount(%s) for %s", fromAmount, from)
@@ -121,14 +120,14 @@ func (s *mixinImpl) GetProvideTx(from, to, fromAmount, toAmount, slippage, sende
 		}
 	}
 
-	tx.Value.ExecuteMsg = *(s.repo.GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage, *pair))
+	tx.Value.ExecuteMsg = *(s.repo.GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage, *pair, deadline))
 
 	txs = append(txs, tx)
 	return txs, nil
 
 }
 
-func (s *mixinImpl) GetWithdrawTx(lpAddr, amount, sender string) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
+func (s *mixinImpl) GetWithdrawTx(lpAddr, amount, sender string, minAssets string, deadline uint64) ([]*terraswap.UnsignedTx, *responser.ErrorResponse) {
 	pair := s.repo.GetPair(lpAddr)
 	if pair == nil {
 		msg := fmt.Sprintf("cannot find a pair by lpAddr(%s)", lpAddr)
@@ -143,8 +142,14 @@ func (s *mixinImpl) GetWithdrawTx(lpAddr, amount, sender string) ([]*terraswap.U
 		return nil, &res
 	}
 
+	formattedMinAssets, err := s.parseMinAssets(*pair, minAssets)
+	if err != nil {
+		res := responser.GetBadRequest(err.Error(), "")
+		return nil, &res
+	}
+
 	tx := terraswap.BaseUnsignedTx(pair.LiquidityToken, sender)
-	tx.Value.ExecuteMsg = *(s.repo.GetWithdrawExecuteMsg(*pair, amount))
+	tx.Value.ExecuteMsg = *(s.repo.GetWithdrawExecuteMsg(*pair, amount, formattedMinAssets, deadline))
 
 	return append(make([]*terraswap.UnsignedTx, 0), tx), nil
 
@@ -168,4 +173,54 @@ func (s mixinImpl) convertToTerraAmount(amount string, tokenAddr string) (string
 	}
 
 	return amount, nil
+}
+
+const (
+	regexGroupIdxAll = 0 + iota
+	regexGroupIdxAmount1
+	regexGroupIdxAssetAddr1
+	regexGroupIdxAmount2
+	regexGroupIdxAssetAddr2
+	regexGroupCnt
+)
+
+func (s mixinImpl) parseMinAssets(pair terraswap.Pair, minAssetsStr string) ([]terraswap.OfferAsset, error) {
+	if minAssetsStr == "" {
+		return nil, nil
+	}
+
+	r, err := regexp.Compile(`^(?P<Amount1>\d+)(?P<AssetInfo1>[a-z]{1}[[:alnum:]/]+),(?P<Amount2>\d+)(?P<AssetInfo2>[a-z]{1}[[:alnum:]/]+)`)
+	if err != nil {
+		return nil, fmt.Errorf("invalid regexp")
+	}
+
+	matches := r.FindStringSubmatch(minAssetsStr)
+	if len(matches) != regexGroupCnt || matches[regexGroupIdxAssetAddr1] == matches[regexGroupIdxAssetAddr2] {
+		return nil, fmt.Errorf("minAssets is invalid")
+	}
+
+	formattedMinAssets := []terraswap.OfferAsset{}
+	ai, err := s.searchAssetInfo(pair, matches[regexGroupIdxAssetAddr1])
+	if err != nil {
+		return nil, err
+	}
+	formattedMinAssets = append(formattedMinAssets, terraswap.OfferAsset{Amount: matches[regexGroupIdxAmount1], Info: ai})
+
+	ai, err = s.searchAssetInfo(pair, matches[regexGroupIdxAssetAddr2])
+	if err != nil {
+		return nil, err
+	}
+	formattedMinAssets = append(formattedMinAssets, terraswap.OfferAsset{Amount: matches[regexGroupIdxAmount2], Info: ai})
+
+	return formattedMinAssets, nil
+}
+
+func (s mixinImpl) searchAssetInfo(pair terraswap.Pair, address string) (terraswap.AssetInfo, error) {
+	for _, ai := range pair.AssetInfos {
+		if (ai.Token != nil && ai.Token.ContractAddr == address) || (ai.NativeToken != nil && ai.NativeToken.Denom == address) {
+			return ai, nil
+		}
+	}
+
+	return terraswap.AssetInfo{}, fmt.Errorf("unmatched pair")
 }

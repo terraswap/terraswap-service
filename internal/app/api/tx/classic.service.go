@@ -19,7 +19,7 @@ func newClassicService(r Repository) Service {
 	}
 }
 
-func (s *classicServiceImpl) GetSwapTxs(from, to, amount, sender, max_spread, belief_price string, hop_count int) ([][]*terraswap.UnsignedTx, *responser.ErrorResponse) {
+func (s *classicServiceImpl) GetSwapTxs(from, to, amount, sender, max_spread, belief_price string, deadline uint64, hop_count int) ([][]*terraswap.UnsignedTx, *responser.ErrorResponse) {
 
 	terraAmount, err := s.convertToTerraAmount(amount, from)
 	if err != nil {
@@ -45,7 +45,7 @@ func (s *classicServiceImpl) GetSwapTxs(from, to, amount, sender, max_spread, be
 		}
 
 		if pathLen == 1 {
-			utx = s.getSwapTx(from, to, terraAmount, sender, max_spread, belief_price)
+			utx = s.getSwapTx(from, to, terraAmount, sender, max_spread, belief_price, deadline)
 		} else {
 			var err error
 			utx, err = s.getRouteSwapTx(from, terraAmount, sender, path)

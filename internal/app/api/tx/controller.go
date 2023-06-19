@@ -28,7 +28,7 @@ func (c *controller) GetSwapTxs(con *gin.Context) {
 		return
 	}
 
-	resBody, resErr := c.service.GetSwapTxs(dto.From, dto.To, dto.Amount, dto.Sender, dto.MaxSpread, dto.BeliefPrice, dto.HopCount)
+	resBody, resErr := c.service.GetSwapTxs(dto.From, dto.To, dto.Amount, dto.Sender, dto.MaxSpread, dto.BeliefPrice, dto.Deadline, dto.HopCount)
 
 	if resErr != nil {
 		con.JSON(resErr.Code, resErr)
@@ -46,7 +46,7 @@ func (c *controller) GetProvideTx(con *gin.Context) {
 		return
 	}
 
-	unsignedtxs, resErr := c.service.GetProvideTx(dto.From, dto.To, dto.FromAmount, dto.ToAmount, dto.Slippage, dto.Sender)
+	unsignedtxs, resErr := c.service.GetProvideTx(dto.From, dto.To, dto.FromAmount, dto.ToAmount, dto.Slippage, dto.Sender, dto.Deadline)
 	if resErr != nil {
 		con.JSON(resErr.Code, resErr)
 		return
@@ -63,7 +63,7 @@ func (c *controller) GetWithdrawTx(con *gin.Context) {
 		return
 	}
 
-	unsignedtxs, resErr := c.service.GetWithdrawTx(dto.LpAddr, dto.Amount, dto.Sender)
+	unsignedtxs, resErr := c.service.GetWithdrawTx(dto.LpAddr, dto.Amount, dto.Sender, dto.MinAssets, dto.Deadline)
 	if resErr != nil {
 		con.JSON(resErr.Code, resErr)
 		return

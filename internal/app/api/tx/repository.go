@@ -11,9 +11,9 @@ type Repository interface {
 	GetPairByAssets(nameOrAddr, nameOrAddr2 string) *terraswap.Pair
 	GetPair(contractAddr string) *terraswap.Pair
 	GetIncreaseAllowance(amount, pairAddress string) *terraswap.ExecuteMsg
-	GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAddress, amount, max_spread, belief_price string) *terraswap.ExecuteMsg
-	GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage string, p terraswap.Pair) *terraswap.ExecuteMsg
-	GetWithdrawExecuteMsg(p terraswap.Pair, amount string) *terraswap.ExecuteMsg
+	GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAddress, amount, max_spread, belief_price string, deadline uint64) *terraswap.ExecuteMsg
+	GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage string, p terraswap.Pair, deadline uint64) *terraswap.ExecuteMsg
+	GetWithdrawExecuteMsg(p terraswap.Pair, amount string, minAssets []terraswap.OfferAsset, deadline uint64) *terraswap.ExecuteMsg
 	GetSwapRouteExecuteMsg(from string, routes []string) (*terraswap.ExecuteMsg, error)
 	GetTokenDecimals(tokenId string) int
 	GetSwapableTokensFrom(from string, hopCount int) []string
@@ -27,7 +27,7 @@ type repositoryImpl struct {
 	db tsApp.DataHandler
 }
 
-//Fixme change db interface
+// Fixme change db interface
 func newRepo(db tsApp.DataHandler) Repository {
 	return &repositoryImpl{db: db}
 }
@@ -70,9 +70,9 @@ func (r *repositoryImpl) GetRouteContractAddress() string {
 	return r.db.GetRouterAddress()
 }
 
-func (r *repositoryImpl) GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAddress, amount, max_spread, belief_price string) *terraswap.ExecuteMsg {
+func (r *repositoryImpl) GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAddress, amount, max_spread, belief_price string, deadline uint64) *terraswap.ExecuteMsg {
 	if fromAsset.GetTokenType() == terraswap.Cw20TokenType {
-		msg, err := terraswap.GetSwapSendMsg(max_spread, belief_price)
+		msg, err := terraswap.GetSwapSendMsg(max_spread, belief_price, deadline)
 		if err != nil {
 			panic(err)
 		}
@@ -93,11 +93,12 @@ func (r *repositoryImpl) GetSwapExecuteMsg(fromAsset terraswap.AssetInfo, pairAd
 			},
 			MaxSpread:   max_spread,
 			BeliefPrice: belief_price,
+			Deadline:    deadline,
 		},
 	}
 }
 
-func (r *repositoryImpl) GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage string, p terraswap.Pair) *terraswap.ExecuteMsg {
+func (r *repositoryImpl) GetProvideLiquidityExecuteMsg(from, fromAmount, toAmount, slippage string, p terraswap.Pair, deadline uint64) *terraswap.ExecuteMsg {
 	fromIdx := 0
 	toIdx := 1
 
@@ -117,13 +118,14 @@ func (r *repositoryImpl) GetProvideLiquidityExecuteMsg(from, fromAmount, toAmoun
 				},
 			},
 			SlippageTolerance: slippage,
+			Deadline:          deadline,
 		},
 	}
 }
 
-func (r *repositoryImpl) GetWithdrawExecuteMsg(p terraswap.Pair, amount string) *terraswap.ExecuteMsg {
+func (r *repositoryImpl) GetWithdrawExecuteMsg(p terraswap.Pair, amount string, minAssets []terraswap.OfferAsset, deadline uint64) *terraswap.ExecuteMsg {
 
-	msg, err := terraswap.GetWithdrawSendMsg()
+	msg, err := terraswap.GetWithdrawSendMsg(minAssets, deadline)
 	if err != nil {
 		panic(err)
 	}
