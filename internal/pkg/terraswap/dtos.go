@@ -58,7 +58,7 @@ type OfferAsset struct {
 type RouteSwapOperationMsg struct {
 	Operations     []RouteSwapOperation `json:"operations"`
 	MinimumReceive string               `json:"minimum_receive"`
-	Deadline       uint64               `json:"deadline"`
+	Deadline       uint64               `json:"deadline,omitempty"`
 }
 
 type RouteSwapOperation struct {
@@ -79,13 +79,13 @@ type SwapMsg struct {
 	OfferAsset  OfferAsset `json:"offer_asset"`
 	BeliefPrice string     `json:"belief_price"`
 	MaxSpread   string     `json:"max_spread"`
-	Deadline    uint64     `json:"deadline"`
+	Deadline    uint64     `json:"deadline,omitempty"`
 }
 
 type ProvideMsg struct {
 	Assets            []OfferAsset `json:"assets"`
 	SlippageTolerance string       `json:"slippage_tolerance"`
-	Deadline          uint64       `json:"deadline"`
+	Deadline          uint64       `json:"deadline,omitempty"`
 }
 
 type SendMsg struct {
