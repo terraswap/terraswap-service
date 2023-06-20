@@ -2,10 +2,11 @@ package tx
 
 import (
 	"fmt"
+	"regexp"
+
 	"github.com/pkg/errors"
 	"github.com/terraswap/terraswap-service/internal/app/api/utils/responser"
 	"github.com/terraswap/terraswap-service/internal/pkg/terraswap"
-	"regexp"
 )
 
 type Service interface {
@@ -19,7 +20,7 @@ type mixinImpl struct {
 	repo Repository
 }
 
-func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string) ([]*terraswap.UnsignedTx, error) {
+func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string, deadline uint64) ([]*terraswap.UnsignedTx, error) {
 	routerAddr := s.repo.GetRouteContractAddress()
 	if routerAddr == "" {
 		return nil, errors.New("api.tx.service.getRouteSwapTx(): there is no router")
@@ -31,7 +32,7 @@ func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string) (
 	txs := make([]*terraswap.UnsignedTx, 0)
 	utx := terraswap.BaseUnsignedTx(addr, sender)
 
-	swapMsg, err := s.repo.GetSwapRouteExecuteMsg(from, path)
+	swapMsg, err := s.repo.GetSwapRouteExecuteMsg(from, path, deadline)
 	if err != nil {
 		return nil, err
 	}
