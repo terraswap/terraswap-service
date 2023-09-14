@@ -25,12 +25,8 @@ func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string, d
 	if routerAddr == "" {
 		return nil, errors.New("api.tx.service.getRouteSwapTx(): there is no router")
 	}
-	addr := from
-	if from[0:1] == "u" {
-		addr = routerAddr
-	}
 	txs := make([]*terraswap.UnsignedTx, 0)
-	utx := terraswap.BaseUnsignedTx(addr, sender)
+	utx := terraswap.BaseUnsignedTx(routerAddr, sender)
 
 	swapMsg, err := s.repo.GetSwapRouteExecuteMsg(from, path, deadline)
 	if err != nil {
@@ -38,6 +34,8 @@ func (s *mixinImpl) getRouteSwapTx(from, amount, sender string, path []string, d
 	}
 
 	if terraswap.IsCw20Token(from) {
+		// terraswap uses send for cw20 token must be executed first
+		utx.Value.Contract = from
 		utx.Value.ExecuteMsg = terraswap.ExecuteMsg{
 			Send: &terraswap.SendMsg{
 				Amount:   amount,
