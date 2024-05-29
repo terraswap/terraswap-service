@@ -42,13 +42,11 @@ func (lhs IbcTokenAllowlist) Equal(src interface{}) bool {
 
 type Cw20AllowlistResponse struct {
 	Mainnet map[string]Cw20Allowlist `json:"mainnet"`
-	Classic map[string]Cw20Allowlist `json:"classic"`
 	Testnet map[string]Cw20Allowlist `json:"testnet"`
 }
 
 type IbcAllowlistResponse struct {
 	Mainnet map[string]IbcTokenAllowlist `json:"mainnet"`
-	Classic map[string]IbcTokenAllowlist `json:"classic"`
 	Testnet map[string]IbcTokenAllowlist `json:"testnet"`
 }
 

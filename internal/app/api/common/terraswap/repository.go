@@ -67,7 +67,7 @@ func (r *repositoryImpl) getCw20Allowlist(url string) (terraswap.TokensMap, erro
 	}
 	var cw20TokenMap map[string]allowlist.Cw20Allowlist
 	if terraswap.IsClassic(r.chainId) {
-		cw20TokenMap = res.Classic
+		cw20TokenMap = res.Mainnet
 	} else if terraswap.IsMainnet(r.chainId) {
 		cw20TokenMap = res.Mainnet
 	} else if terraswap.IsTestnet(r.chainId) {
@@ -100,7 +100,7 @@ func (r *repositoryImpl) getIbcAllowlist(url string) (terraswap.TokensMap, error
 
 	var ibcTokenMap map[string]allowlist.IbcTokenAllowlist
 	if terraswap.IsClassic(r.chainId) {
-		ibcTokenMap = res.Classic
+		ibcTokenMap = res.Mainnet
 	} else if terraswap.IsMainnet(r.chainId) {
 		ibcTokenMap = res.Mainnet
 	} else if terraswap.IsTestnet(r.chainId) {
