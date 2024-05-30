@@ -59,8 +59,8 @@ func RunServer(c configs.Config) *terraswapApi {
 	tsHandler.Run()
 	routerService.Run()
 
-	repeater.Enroll(tsHandler.GetLogger(), tsHandler, "TerraswapDataHandler", 2, terra.BLOCK_TIME)
-	repeater.Enroll(tsHandler.GetLogger(), routerService, "TerraswapRouter", 2, terra.BLOCK_TIME*10)
+	repeater.Enroll(tsHandler.GetLogger(), tsHandler, "TerraswapDataHandler", 2, terra.BLOCK_TIME*100)
+	repeater.Enroll(tsHandler.GetLogger(), routerService, "TerraswapRouter", 2, terra.BLOCK_TIME*200)
 
 	gin.SetMode(c.App.Mode)
 	app := terraswapApi{
