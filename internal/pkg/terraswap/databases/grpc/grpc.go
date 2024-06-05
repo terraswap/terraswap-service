@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -161,7 +162,7 @@ func (t *terraswapGrpcCon) GetZeroPoolPairs(pairs []terraswap.Pair) (map[string]
 }
 
 func (t *terraswapGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo, error) {
-
+	time.Sleep(1 * time.Second)
 	client := wasmtype.NewQueryClient(t.con)
 	res, err := client.SmartContractState(context.Background(), &wasmtype.QuerySmartContractStateRequest{
 		Address:   addr,
@@ -185,7 +186,7 @@ func (t *terraswapGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo, error)
 }
 
 func (t *terraswapGrpcCon) GetTokenInfo(tokenAddress string) (*terraswap.Token, error) {
-
+	time.Sleep(1 * time.Second)
 	client := wasmtype.NewQueryClient(t.con)
 	res, err := client.SmartContractState(context.Background(), &wasmtype.QuerySmartContractStateRequest{
 		Address:   tokenAddress,
