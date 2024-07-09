@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -54,34 +55,42 @@ func New(host, chainId string, insecureCon bool, log configs.LogConfig) Terraswa
 }
 
 func connectGRPC(host string, isInsecure bool) *grpc.ClientConn {
+	var opts []grpc.DialOption
+
 	if isInsecure {
 		cred := insecure.NewCredentials()
-		conn, err := grpc.Dial(host, grpc.WithTransportCredentials(cred))
+		opts = append(opts, grpc.WithTransportCredentials(cred))
+	} else {
+		dialer := &net.Dialer{
+			Timeout: 5 * time.Second,
+		}
+		// Establish a TLS connection to fetch server certificates with a timeout
+		conn, err := tls.DialWithDialer(dialer, "tcp", host, &tls.Config{
+			InsecureSkipVerify: true,
+		})
 		if err != nil {
 			panic(err.Error())
 		}
-		return conn
+
+		certs := conn.ConnectionState().PeerCertificates
+		conn.Close()
+
+		pool := x509.NewCertPool()
+		pool.AddCert(certs[0])
+
+		clientCert := credentials.NewClientTLSFromCert(pool, "")
+		opts = append(opts, grpc.WithTransportCredentials(clientCert))
 	}
 
-	var opts []grpc.DialOption
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	conn, err := tls.Dial("tcp", host, &tls.Config{
-		InsecureSkipVerify: true,
-	})
+	opts = append(opts, grpc.WithBlock())
+
+	rpcConn, err := grpc.DialContext(ctx, host, opts...)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	certs := conn.ConnectionState().PeerCertificates
-	conn.Close()
-
-	pool := x509.NewCertPool()
-	pool.AddCert(certs[0])
-
-	clientCert := credentials.NewClientTLSFromCert(pool, "")
-	opts = append(opts, grpc.WithTransportCredentials(clientCert))
-
-	rpcConn, _ := grpc.Dial(host, opts...)
 
 	return rpcConn
 }
@@ -162,7 +171,6 @@ func (t *terraswapGrpcCon) GetZeroPoolPairs(pairs []terraswap.Pair) (map[string]
 }
 
 func (t *terraswapGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo, error) {
-	time.Sleep(1 * time.Second)
 	client := wasmtype.NewQueryClient(t.con)
 	res, err := client.SmartContractState(context.Background(), &wasmtype.QuerySmartContractStateRequest{
 		Address:   addr,
@@ -186,7 +194,6 @@ func (t *terraswapGrpcCon) getPoolInfo(addr string) (*terraswap.PoolInfo, error)
 }
 
 func (t *terraswapGrpcCon) GetTokenInfo(tokenAddress string) (*terraswap.Token, error) {
-	time.Sleep(1 * time.Second)
 	client := wasmtype.NewQueryClient(t.con)
 	res, err := client.SmartContractState(context.Background(), &wasmtype.QuerySmartContractStateRequest{
 		Address:   tokenAddress,
