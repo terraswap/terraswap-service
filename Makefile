@@ -4,12 +4,12 @@ all: test
 # Start the minimum requirements for the service, i.e. db
 .PHONY: up
 up:
-	docker-compose up -d
+	docker compose up -d
 
 # Stop all services
 .PHONY: down
 down:
-	docker-compose down
+	docker compose down
 
 # Explicitly install dependencies. In most cases this is not required as go will automatically download missing deps.
 .PHONY: deps

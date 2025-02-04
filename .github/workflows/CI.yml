@@ -15,11 +15,12 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18
+        go-version: ${{ matrix.go-version }}
 
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
+      uses: golangci/golangci-lint-action@v6
       with:
+        version: v1.60
         args: --timeout=5m --enable=unparam --enable=misspell --enable=prealloc --tests=false --disable=errcheck
 
     - name: Tests
