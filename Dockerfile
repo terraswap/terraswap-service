@@ -7,7 +7,7 @@
 #   docker run --rm -it --env-file=path/to/.env --name terraswap-service -p 80:8080 REPO/terraswap-service
 
 ### BUILD
-FROM golang:1.19-alpine AS build
+FROM golang:1.23-alpine AS build
 WORKDIR /app
 
 # Create appuser.
@@ -26,8 +26,12 @@ RUN make deps
 COPY . .
 
 # See https://github.com/CosmWasm/wasmvm/releases
-ADD https://github.com/CosmWasm/wasmvm/releases/download/v1.0.0/libwasmvm_muslc.x86_64.a /lib/libwasmvm_muslc.a
-RUN sha256sum /lib/libwasmvm_muslc.a | grep f6282df732a13dec836cda1f399dd874b1e3163504dbd9607c6af915b2740479
+RUN set -eux; \
+    export ARCH=$(uname -m); \
+    WASM_VERSION=$(go list -mod=readonly -m all | grep github.com/CosmWasm/wasmvm | awk '{print $2}'); \
+    if [ ! -z "${WASM_VERSION}" ]; then \
+      wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a; \
+    fi;
 
 # Build executable
 ## force it to use static lib (from above) not standard libgo_cosmwasm.so file
@@ -49,7 +53,7 @@ COPY --from=build /app/cmd /app/cmd
 COPY --from=build /app/main /app/main
 
 # Expose application port
-ENV APP_PORT 8000
+ENV APP_PORT=8000
 EXPOSE $APP_PORT
 # Set entry point
 CMD [ "./main" ]

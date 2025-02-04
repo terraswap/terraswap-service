@@ -13,13 +13,14 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.18
+        go-version-file: 'go.mod'
 
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
+      uses: golangci/golangci-lint-action@v6
       with:
+        version: v1.60
         args: --timeout=5m --enable=unparam --enable=misspell --enable=prealloc --tests=false --disable=errcheck
 
     - name: Tests
